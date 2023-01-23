@@ -1,0 +1,5 @@
+city,lat,lng,country,iso2,admin_name,capital,population,population_proper
+London,51.5072,-0.1275,United Kingdom,GB,"London, City of",primary,10979000,8825001
+Birmingham,52.4800,-1.9025,United Kingdom,GB,Birmingham,,2897303,1137100
+Manchester,53.4794,-2.2453,United Kingdom,GB,Manchester,,2705000,547627
+Leeds,53.7997,-1.5492,United Kingdom,GB,Leeds,,1901934,789194
