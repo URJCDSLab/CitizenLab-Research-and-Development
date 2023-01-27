@@ -1,42 +1,28 @@
-# Notebooks CU 04 vacunas
+# Notebooks CU 18 infraestructuras
 
 
 ## 05. - Data Collection
 
 ### Datos del caso de uso
 
-• Vacunas:
-o    Número de vacunas suministradas por zona (o centro) y semana (por edad y sexo). Campaña en curso e histórico campaña anterior.
-o    Número de citas solicitadas (con la granularidad que se pueda, idealmente la misma que las suministradas)
-• Población (por edad, sexo y zona, al menos dos últimos periodos disponibles):
-o    Población total
-o    Densidad de población
-o    Porcentaje de personas mayores de 65 años
-o    Porcentaje de personas inmigrantes
-o    Tasa de paro
-• Sanitarios (por edad, sexo y zona, al menos dos últimos periodos disponibles):
-o    Porcentaje de población de riesgo
-o    Tasa de variación población mayor de 65 años (se puede calcular con los datos de población)
-o    Tasa de variación población de riesgo
-o    Capacidad de los censos sanitarios (ver con experto en el dominio cómo se mide)
-• Medioambientales, semanales como mínimo e histórico dos años. Por estación o agregados por zona. Estos como mínimo, pero si hay más de otros casos de uso (e.g., viento) que se puedan coger:
-o    Temperatura
-o    Humedad
-o    Niveles de contaminación (NO_2 estación de medición más próxima u otra más apropiada según expertos del dominio)
-• Internet, agregados por semana o que se puedan agregar, con la delimitación geográfica que se pueda (país, provincia, ...):
-o    Número de búsquedas (o su estimación) en Internet palabra "gripe"
-o    Número de tuits (o su estimación) palabra "gripe"
-
-### Notebooks específicos
-
-#### 05. - Data Collection_CU_04_01_zonas_v_01
-
-* Completada
-
-#### 05. - Data Collection_CU_04_02_poblacion_v_01
-
-* Indicadores de sección censal extrapolados a zona sanitaria
-* Descripciones de los indicadores socioeconómicos (metadatos)
-* Completada
-
-#### 05. - Data Collection_CU_04_02_poblacion_v_01
+• Infraestructuras:
+o    Ubicación exacta (coordenadas estáticas de los edificios)
+o    Capacidad
+o    Demanda
+o    Tipo de infraestructura
+o    Otras disponibles
+• Demográficas:
+o    Población por edad y zona
+o    Superficie de la unidad territorial utilizada (se puede calcular con la geometría del mapa)
+• Socioeconómicas
+o    Actividad predominante de la zona
+o    Número de viviendas e instalaciones educativas (distinguiendo guarderías, colegios, institutos, universidades)
+o    Número de industrias, comercios, oficinas y ocio (bares, restaurantes, teatros/cines, instalaciones deportivas)
+o    Distancia más corta a infraestructuras relevantes (polideportivo, instituto, etc.). Se puede calcular con las coordenadas de todas.
+• Meteorológicas
+o    Temperatura y humedad. Si el alcance temporal es mayor que el diario, incluir media, desviación típica, máximo y mínimo. 
+• Transporte. Si están categorizadas como infraestructuras se puede obtener con las coordenadas.
+o    Número de estaciones de metro y paradas de autobús en la zona de referencia. 
+o    Distancia a la estación de metro más cercana
+o    Distancia a la estación de tren más cercana
+o    Distancia al aeropuerto
