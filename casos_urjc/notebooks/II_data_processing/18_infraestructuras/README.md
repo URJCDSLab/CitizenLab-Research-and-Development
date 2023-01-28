@@ -3,6 +3,10 @@
 
 ## 05. - Data Collection
 
+### Notas
+
+- No se sincroniza en el repositorio la carpeta Data/Input/Espana_Seccionado2022_ETRS89H30/ porque excede el tamaño.
+
 ### Datos del caso de uso
 
 • Infraestructuras:
@@ -26,3 +30,4 @@ o    Número de estaciones de metro y paradas de autobús en la zona de referenc
 o    Distancia a la estación de metro más cercana
 o    Distancia a la estación de tren más cercana
 o    Distancia al aeropuerto
+
