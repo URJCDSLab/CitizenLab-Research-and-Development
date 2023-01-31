@@ -7,6 +7,11 @@
 
 - No se sincroniza en el repositorio la carpeta Data/Input/Espana_Seccionado2022_ETRS89H30/ porque excede el tamaño.
 
+- No se sincroniza en el repositorio la carpeta Data/Input/admon_comercio_actividad_educacion/ porque excede el tamaño.
+
+- Operaciones de limpieza hechas en 05 a reportar en otros procesos:
+    - 07 Limpieza de nombres y grupos de administraciones
+
 ### Datos del caso de uso
 
 • Infraestructuras:
