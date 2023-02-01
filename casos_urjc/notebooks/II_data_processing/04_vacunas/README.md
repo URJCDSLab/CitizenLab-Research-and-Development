@@ -1,5 +1,8 @@
 # Notebooks CU 04 vacunas
 
+- Operaciones de limpieza hechas en 05 a reportar en otros procesos:
+    - 05 imputación missing porque hacía falta antes
+
 
 ## 05. - Data Collection
 
