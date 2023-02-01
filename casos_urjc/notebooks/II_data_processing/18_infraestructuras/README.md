@@ -11,6 +11,7 @@
 
 - Operaciones de limpieza hechas en 05 a reportar en otros procesos:
     - 07 Limpieza de nombres y grupos de administraciones
+    
 
 ### Datos del caso de uso
 
