@@ -12,28 +12,32 @@
 - Operaciones de limpieza hechas en 05 a reportar en otros procesos:
     - 07 Limpieza de nombres y grupos de administraciones
     
+### Lista de categorías de POIS de OSM
+
+http://download.geofabrik.de/osm-data-in-gis-formats-free.pdf
 
 ### Datos del caso de uso
 
-• Infraestructuras:
-o    Ubicación exacta (coordenadas estáticas de los edificios)
-o    Capacidad
-o    Demanda
-o    Tipo de infraestructura
-o    Otras disponibles
-• Demográficas:
-o    Población por edad y zona
-o    Superficie de la unidad territorial utilizada (se puede calcular con la geometría del mapa)
-• Socioeconómicas
-o    Actividad predominante de la zona
-o    Número de viviendas e instalaciones educativas (distinguiendo guarderías, colegios, institutos, universidades)
-o    Número de industrias, comercios, oficinas y ocio (bares, restaurantes, teatros/cines, instalaciones deportivas)
-o    Distancia más corta a infraestructuras relevantes (polideportivo, instituto, etc.). Se puede calcular con las coordenadas de todas.
+**Infraestructuras:**
+[X] Ubicación exacta (coordenadas estáticas de los edificios)
+[X] Capacidad
+[X] Demanda
+[X] Tipo de infraestructura
+[X] Otras disponibles
+**Demográficas:**
+[X] Población por edad y zona
+[X] Superficie de la unidad territorial utilizada (se puede calcular con la geometría del mapa)
+AÑADIDAS: todos los indicadores del INE
+**Socioeconómicas**
+[X] Actividad predominante de la zona -> cambiado por info de administración, etc.
+[X] Número de viviendas e instalaciones educativas (distinguiendo guarderías, colegios, institutos, universidades) -> Número de viviendas no encontrado. Resto con info de administración, etc.
+[ ] Número de industrias, comercios, oficinas y ocio (bares, restaurantes, teatros/cines, instalaciones deportivas) -> POIS de turismo
+[ ] Distancia más corta a infraestructuras relevantes (polideportivo, instituto, etc.). Se puede calcular con las coordenadas de todas.
 • Meteorológicas
-o    Temperatura y humedad. Si el alcance temporal es mayor que el diario, incluir media, desviación típica, máximo y mínimo. 
+[ ] Temperatura y humedad. Si el alcance temporal es mayor que el diario, incluir media, desviación típica, máximo y mínimo. 
 • Transporte. Si están categorizadas como infraestructuras se puede obtener con las coordenadas.
-o    Número de estaciones de metro y paradas de autobús en la zona de referencia. 
-o    Distancia a la estación de metro más cercana
-o    Distancia a la estación de tren más cercana
-o    Distancia al aeropuerto
+[ ] Número de estaciones de metro y paradas de autobús en la zona de referencia. 
+[ ] Distancia a la estación de metro más cercana
+[ ] Distancia a la estación de tren más cercana
+[ ] Distancia al aeropuerto
 
