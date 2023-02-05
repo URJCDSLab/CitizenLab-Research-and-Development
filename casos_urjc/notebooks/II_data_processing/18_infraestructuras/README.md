@@ -11,6 +11,7 @@
 
 - Operaciones de limpieza hechas en 05 a reportar en otros procesos:
     - 07 Limpieza de nombres y grupos de administraciones
+    - 15 precipitación Ip inapreciable (moja la calle pero no llega a 0,1)
     
 ### Lista de categorías de POIS de OSM
 
@@ -31,13 +32,21 @@ AÑADIDAS: todos los indicadores del INE
 **Socioeconómicas**
 [X] Actividad predominante de la zona -> cambiado por info de administración, etc.
 [X] Número de viviendas e instalaciones educativas (distinguiendo guarderías, colegios, institutos, universidades) -> Número de viviendas no encontrado. Resto con info de administración, etc.
-[ ] Número de industrias, comercios, oficinas y ocio (bares, restaurantes, teatros/cines, instalaciones deportivas) -> POIS de turismo
+[X] Número de industrias, comercios, oficinas y ocio (bares, restaurantes, teatros/cines, instalaciones deportivas) -> POIS de turismo
 [ ] Distancia más corta a infraestructuras relevantes (polideportivo, instituto, etc.). Se puede calcular con las coordenadas de todas.
 • Meteorológicas
-[ ] Temperatura y humedad. Si el alcance temporal es mayor que el diario, incluir media, desviación típica, máximo y mínimo. 
+[ ] Temperatura y humedad. Si el alcance temporal es mayor que el diario, incluir media, desviación típica, máximo y mínimo. -> en vez de humedad usamos precipitaciones, que es un dato directo de las estaciones
 • Transporte. Si están categorizadas como infraestructuras se puede obtener con las coordenadas.
-[ ] Número de estaciones de metro y paradas de autobús en la zona de referencia. 
+[X] Número de estaciones de metro y paradas de autobús en la zona de referencia. -> metro, cercanias, aeropuertos, etc.
 [ ] Distancia a la estación de metro más cercana
 [ ] Distancia a la estación de tren más cercana
 [ ] Distancia al aeropuerto
+
+* Eventos
+
+[ ] Fecha
+[ ] Demanda infraestructura
+[ ] Capacidad infraestructura
+[ ] Evento (avería, accidente, ...)
+
 
