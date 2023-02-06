@@ -33,14 +33,14 @@ AÑADIDAS: todos los indicadores del INE
 [X] Actividad predominante de la zona -> cambiado por info de administración, etc.
 [X] Número de viviendas e instalaciones educativas (distinguiendo guarderías, colegios, institutos, universidades) -> Número de viviendas no encontrado. Resto con info de administración, etc.
 [X] Número de industrias, comercios, oficinas y ocio (bares, restaurantes, teatros/cines, instalaciones deportivas) -> POIS de turismo
-[ ] Distancia más corta a infraestructuras relevantes (polideportivo, instituto, etc.). Se puede calcular con las coordenadas de todas.
+[X] Distancia más corta a infraestructuras relevantes (polideportivo, instituto, etc.). Se puede calcular con las coordenadas de todas.
 • Meteorológicas
-[ ] Temperatura y humedad. Si el alcance temporal es mayor que el diario, incluir media, desviación típica, máximo y mínimo. -> en vez de humedad usamos precipitaciones, que es un dato directo de las estaciones
+[X] Temperatura y humedad. Si el alcance temporal es mayor que el diario, incluir media, desviación típica, máximo y mínimo. -> en vez de humedad usamos precipitaciones, que es un dato directo de las estaciones
 • Transporte. Si están categorizadas como infraestructuras se puede obtener con las coordenadas.
 [X] Número de estaciones de metro y paradas de autobús en la zona de referencia. -> metro, cercanias, aeropuertos, etc.
-[ ] Distancia a la estación de metro más cercana
-[ ] Distancia a la estación de tren más cercana
-[ ] Distancia al aeropuerto
+[X] Distancia a la estación de metro más cercana -> intercambiadores
+[X] Distancia a la estación de tren más cercana
+[X] Distancia al aeropuerto
 
 * Eventos
 
