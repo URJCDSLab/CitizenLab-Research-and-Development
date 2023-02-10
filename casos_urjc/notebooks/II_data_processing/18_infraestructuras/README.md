@@ -11,7 +11,8 @@
 
 - Operaciones de limpieza hechas en 05 a reportar en otros procesos:
     - 07 Limpieza de nombres y grupos de administraciones
-    - 15 precipitación Ip inapreciable (moja la calle pero no llega a 0,1)
+    - 14, 15 precipitación Ip inapreciable (moja la calle pero no llega a 0,1)
+
     
 ### Lista de categorías de POIS de OSM
 
@@ -44,9 +45,10 @@ AÑADIDAS: todos los indicadores del INE
 
 * Eventos
 
-[ ] Fecha
-[ ] Demanda infraestructura
-[ ] Capacidad infraestructura
-[ ] Evento (avería, accidente, ...)
+[X] Fecha
+[X] Infraestructura
+[X] Demanda infraestructura -> simulado de momento, tenemos reales de metro y cercanías
+[X] Capacidad infraestructura -> simulado de momento, tenemos reales de metro y cercanías
+[X] Evento (avería, accidente, ...) -> simulado
 
 
