@@ -13,6 +13,12 @@
     - 07 Limpieza de nombres y grupos de administraciones
     - 14, 15 precipitación Ip inapreciable (moja la calle pero no llega a 0,1)
 
+FICHEROS FINALES:
+
+* por infraestructura
+* por infraestructura y fecha
+* por distrito censal
+
     
 ### Lista de categorías de POIS de OSM
 
