@@ -2,7 +2,7 @@
 
 - Operaciones de limpieza hechas en 05 a reportar en otros procesos:
     - 05 imputación missing porque hacía falta antes
-    - 12 nombres de columnas importadas
+    - 12 y 13 nombres de columnas importadas
 
 
 ## 05. - Data Collection
@@ -32,7 +32,7 @@
 [X] Niveles de contaminación (NO_2 estación de medición más próxima u otra más apropiada según expertos del dominio) _-> cambiado por nox aunque se incluye todo_
 
 • Internet, agregados por semana o que se puedan agregar, con la delimitación geográfica que se pueda (país, provincia, ...):
-[ ] Número de búsquedas (o su estimación) en Internet palabra "gripe"
+[X] Número de búsquedas (o su estimación) en Internet palabra "gripe"
 [X] Número de tuits (o su estimación) palabra "gripe"
 
 ### Notebooks específicos
@@ -48,3 +48,5 @@
 * Completada
 
 #### 05. - Data Collection_CU_04_02_poblacion_v_01
+
+...
