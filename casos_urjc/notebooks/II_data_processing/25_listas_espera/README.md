@@ -1,3 +1,9 @@
+## Tareas de otros procesos del dominio:
+
+- Data adequacy: nombres de columnas
+- Homogeneización de nombres de hospitales antes de mezclar esri-sns
+
+
 ## Datos
 
 **Pacientes:**
@@ -8,14 +14,14 @@
 [ ] Fecha operación
 
 **Si no se dispone de los datos anteriores, serán necesarios, al menos:**
-[ ] Tiempo medio de espera (por zona, especialidad)
-[ ] Número medio de incorporaciones a la lista (por zona, especialidad y periodo de tiempo elegidos)
+[X] Tiempo medio de espera (por zona, especialidad)
+[X] Número medio de incorporaciones a la lista (por zona, especialidad y periodo de tiempo elegidos)
 
 **Demográficas:**
-[ ] Población por sexo, edad y zona
-[ ] Esperanza de vida
-[ ] Nivel de renta
-[ ] Nivel de estudios
+[X] Población por sexo, edad y zona
+[ ] Esperanza de vida -> No está, pero hay otras
+[X] Nivel de renta
+[X] Nivel de estudios
 
 **Sanitarias**
 [ ] Capacidad de la zona (por especialidad). Dotaciones.
