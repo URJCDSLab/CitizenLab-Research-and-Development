@@ -24,7 +24,7 @@
 [X] Nivel de estudios
 
 **Sanitarias**
-[ ] Capacidad de la zona (por especialidad). Dotaciones.
-[ ] Número de pacientes con enfermedades crónicas (por especialidad y zona)
-[ ] Número de consultas atendidas por especialidad y hospital
-[ ] Número de hospitalizaciones por especialidad y hospital
+[X] Capacidad de la zona (por especialidad). Dotaciones.
+[X] Número de pacientes con enfermedades crónicas (por especialidad y zona)
+[X ] Número de consultas atendidas por especialidad y hospital
+[X] Número de hospitalizaciones por especialidad y hospital
