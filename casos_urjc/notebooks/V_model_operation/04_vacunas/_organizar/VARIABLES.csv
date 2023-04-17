@@ -1,0 +1,7 @@
+variable,tipo,valor,min,max,control,nombre,etiqueta,descripcion,instrucciones
+"ANO","numeric",2021,2018,2023,"sliderInput","Año","Campaña (año)","Año de inicio de la campaña de vacunación histórica que quiere visualizar. Por ejemplo, para la campaña 2021/2022, seleccione el año 2021","Seleccionar de entre los valores únicos en archivo de vacunación"
+"ZONA","character",NA,NA,NA,"selectInput","Zona","Zona sanitaria","Zona sanitaria de la que se quiere realizar la visualización","Seleccionar de entre los valores únicos en archivo de vacunación. En el input, seleccionar el código, y mostrar el nombre (o el nombre y el código)"
+"SEMANA_INICIO","numeric",36,25,52,"sliderInput","Inicio","Semana inicio campaña","Semana de inicio de la campaña","Se utilizan para filtrar los datos de campañas"
+"SEMANA_FIN","numeric",5,1,24,"sliderInput","Fin","Semana fin campaña",Semana de fin de la campaña",·Se utilizan para filtrar los datos de campañas"
+"PREDICTOR","character","t1_1",NA,NA,"selectInput","Predictor","Variable predictora","Se selecciona de entre los nombres de columna de los objetos importados (ESCUCHA, HISTORICO, INDICADORES), excluyendo GEOCODIGO, DESBDT, ano, seamana, Idealmebte se mostrarían por grupos"
+"CONF.LEVEL","numeric",90,80,99,"numericInput","Niv.Confiana","Nivel de confianza","Se utiliza para obtener un intervalo de confianza en la predicción de series. Debe ser un número entre 80 y 99"
