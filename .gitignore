@@ -10,3 +10,13 @@ casos_urjc/notebooks/II_data_processing/45_turismo_origen/Data/Input/53001.csv
 casos_urjc/notebooks/_deployment/DEPLOY_CU_50.rar
 casos_urjc/notebooks/II_data_processing/04_vacunas/src/pruebas_py.ipynb
 casos_urjc/notebooks/II_data_processing/18_infraestructuras/src/task_weather.py
+casos_urjc/notebooks/II_data_processing/34_servicios/Data/Input/Espa§a_Seccionado2022_ETRS89H30/SECC_CE_20220101.CPG
+casos_urjc/notebooks/II_data_processing/34_servicios/Data/Input/Espa§a_Seccionado2022_ETRS89H30/SECC_CE_20220101.dbf
+casos_urjc/notebooks/II_data_processing/34_servicios/Data/Input/Espa§a_Seccionado2022_ETRS89H30/SECC_CE_20220101.prj
+casos_urjc/notebooks/II_data_processing/34_servicios/Data/Input/Espa§a_Seccionado2022_ETRS89H30/SECC_CE_20220101.sbn
+casos_urjc/notebooks/II_data_processing/34_servicios/Data/Input/Espa§a_Seccionado2022_ETRS89H30/SECC_CE_20220101.sbx
+casos_urjc/notebooks/II_data_processing/34_servicios/Data/Input/Espa§a_Seccionado2022_ETRS89H30/SECC_CE_20220101.shp
+casos_urjc/notebooks/II_data_processing/34_servicios/Data/Input/Espa§a_Seccionado2022_ETRS89H30/SECC_CE_20220101.shp.xml
+casos_urjc/notebooks/II_data_processing/34_servicios/Data/Input/Espa§a_Seccionado2022_ETRS89H30/SECC_CE_20220101.shx
+casos_urjc/notebooks/II_data_processing/45_turismo_origen/Data/Output/CU_45_05_03_receptor.csv
+casos_urjc/notebooks/V_model_operation/chatGPT.Rmd

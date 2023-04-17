@@ -1,6 +1,15 @@
 CU45_Planificación y promoción del destino en base a los patrones en origen de los turistas			
 ================================================================================
 
+Tareas de otros procesos
+------------------------
+
+* Limpiar nombres de columnas
+* NA secreto estadístico??
+
+Datos
+-----------
+
 **Datos de escucha**
 
 - [ ] Fecha -> Se han simulado puntuaciones medias en cualquier periodo
