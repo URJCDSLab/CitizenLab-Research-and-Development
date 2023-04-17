@@ -1,0 +1,79 @@
+﻿Id_Estacion,COD_DISTRITO,DISTRITO,COD_BARRIO,BARRIO,DIRECCION,EMPLAZAMIENTO,INFO_ADICICIONAL,Nº_EQUIPO,OPERADOR,Lat,Long,kW,Concetor_CCS_Chademo,Concetor_Mennekes
+0,2,Arganzuela,1,Imperial,Calle Chulapos s/n,Vía pública,,1,REPSOL,40.407409810770275,-3.7201630666934395,50,2,1
+1,2,Arganzuela,6,Palos de Moguer,Ronda de Valencia 1,Vía pública,,1,GIC,40.40564288901374,-3.6997502642824505,50,2,1
+2,3,Retiro,2,Adelfas,Calle Cerro de la Plata 4,Vía pública,,1,GIC,40.39990397766375,-3.675211297712784,50,2,1
+3,3,Retiro,5,Jerónimos,Calle Alfonso XII. 2,Vía pública,,1,REPSOL,40.419280788112985,-3.688934805301999,50,2,1
+4,4,Salamanca,1,Recoletos,Calle Goya 36,Vía pública,,1,GIC,40.424901562698686,-3.681052554532919,50,2,1
+5,4,Salamanca,2,Goya,Calle Goya 123,Vía pública,,1,REPSOL,40.42466538349725,-3.6711559751712204,50,2,1
+6,4,Salamanca,6,Castellana,Calle Castelló 105,Vía pública,,1,GIC,40.43500162609077,-3.680755002268597,50,2,1
+7,4,Salamanca,4,Guindalera,Plaza de San Cayetano. s/n,Aparcamiento,Mercado Municipal,1,ENDESA,40.43390307185561,-3.670704771139086,50,2,1
+8,10,Latina,6,Cuatro Vientos,Calle Sinfonia. 9 (ES Ballenoil Aviación),Estación de servicio,,1,DRIVE THE CITY,40.37422456687519,-3.776766471915277,50,2,1
+9,5,Chamartín,4,Hispanoamérica,Avenida Alfonso XIII. esquina. Costa Rica,Estación de servicio,Aparcamiento público rotación. EMT,1,REPSOL,40.45885222080372,-3.6676762436749373,50,2,1
+10,4,Salamanca,6,Castellana,Calle Velázquez 74,Vía pública,,1,REPSOL,40.42931466987669,-3.683596255100391,50,2,1
+11,4,Salamanca,6,Castellana,Paseo Castellana 52,Vía pública,,1,REPSOL,40.43552254335681,-3.687965862510226,50,2,1
+12,5,Chamartín,1,El Viso,Paseo Castellana 106,Vía pública,,1,REPSOL,40.4454323799613,-3.69077326942928,50,2,1
+13,5,Chamartín,6,Castilla,Calle Cardenal Marcelo Spínola 6,Vía pública,,1,GIC,40.46730713737772,-3.669951626537506,50,2,1
+14,7,Chamberí,2,Arapiles,Calle Fernández de los Ríos 42,Vía pública,,1,REPSOL,40.43518936227655,-3.709214852302541,50,2,1
+15,7,Chamberí,2,Arapiles,Plaza del Conde de Valle de Suchil,Vía pública,,1,REPSOL,40.43048221906002,-3.706909152805398,50,2,1
+16,7,Chamberí,3,Trafalgar,Calle Manuel Silvela 16,Vía pública,,1,GIC,40.43050027130022,-3.699185308591792,50,2,1
+17,5,Chamartín,5,Nueva España,Avenida Alberto Alcocer. 11,Aparcamiento,Aparcamiento privado rotación,1,ENDESA,40.45905152193189,-3.686497649184263,50,2,1
+18,7,Chamberí,3,Trafalgar,Calle Santa Engracia 115,Vía pública,,1,GIC,40.43804847905102,-3.7002862229780686,50,2,1
+19,7,Chamberí,4,Almagro,Paseo Castellana 33,Vía pública,,1,GIC,40.43195780484819,-3.689138793155043,50,2,1
+20,8,Fuencarral - El Pardo,5,La Paz,Calle de Sinesio Delgado 2,Vía pública,,1,GIC,40.47440524568015,-3.6879661828152654,50,2,1
+21,15,Ciudad Lineal,6,San Juan Bautista,Calle Bueso Pineda 29,Vía pública,,1,GIC,40.45407980919676,-3.655347846644277,50,2,1
+22,1,Centro,1,Palacio,Plaza de la Cebada,Aparcamiento,Aparcamiento privado rotación. Iniciativa privada,1,DRIVE THE CITY,40.4107561924062,-3.7101177821161824,50,2,0
+23,5,Chamartín,5,Nueva España,Calle Mateo Inurria. 4,Estación de servicio,,1,REPSOL,40.46644468916498,-3.6865512150293993,50,2,1
+24,6,Tetuán,6,Berruguete,Calle Ofelia Nieto. 64,Estación de servicio,,1,REPSOL,40.46146029989998,-3.708613303548499,50,2,1
+25,8,Fuencarral - El Pardo,6,Valverde,Calle del Abetal 8,Estación de servicio,,2,REPSOL,40.501968140844184,-3.6632084939975584,50,2,1
+26,9,Moncloa - Aravaca,3,Ciudad Universitaria,CRED HIpodromoCR A-6  P.K. 8.00 D (avda Padre Huidobro sn),Estación de servicio,,1,REPSOL,40.460928809828715,-3.7580649831380746,50,2,1
+27,9,Moncloa - Aravaca,6,El Plantío,A6 - Avenida Victoria 34 (Cred el Plantio),Estación de servicio,,1,REPSOL,40.46887298083183,-3.82007543432681,50,2,1
+28,10,Latina,6,Cuatro Vientos,Cred A5 PK 9,Estación de servicio,,1,REPSOL,40.37937059233547,-3.7905200471989944,50,2,1
+29,10,Latina,6,Cuatro Vientos,Avenida de la Peseta 6,Estación de servicio,,1,REPSOL,40.36845567346054,-3.765636319865769,50,2,1
+30,10,Latina,7,Águilas,Calle de José de Cadalso 51,Aparcamiento,Mercado Municipal,1,DRIVE THE CITY,40.377818357266506,-3.7685174624941573,50,2,1
+31,13,Puente de Vallecas,4,Palomeras Sureste,Avenida de la Albufera 319,Aparcamiento,Aparcamiento privado rotación,2,ECOLINERAS,40.38389079800475,-3.6320611385999997,50,2,1
+32,16,Hortaleza,6,Valdefuentes,Avenida María de Portugal 15,Estación de servicio,,1,IBERDROLA,40.497684220511395,-3.662642336670282,50,2,1
+33,17,Villaverde,3,Butarque,Avda. de los Rosales 147 M-301 km 4.1,Estación de servicio,,1,REPSOL,40.33981145898198,-3.66879897894286,50,2,1
+34,18,Villa de Vallecas,3,Ensanche de Vallecas,Avenida Real de Arganda 74,Estación de servicio,,1,REPSOL,40.376053523348496,-3.6043840726936565,50,2,1
+35,20,San Blas - Canillejas,6,Rejas,Barajas II A2 Km 12.6,Estación de servicio,,1,REPSOL,40.44902462696648,-3.566437741816074,50,2,1
+36,1,Centro,6,Sol,Plaza de Jacinto Benavente 6,Aparcamiento,Aparcamiento público rotación. EMT,1,EMT,40.41462143438067,-3.703175100546664,50,2,1
+37,4,Salamanca,1,Recoletos,Jardines del Descubrimiento - Acceso a Complejo de Aparcamientos subterráneos por Calle de la Armada Española,Vía pública,Aparcamiento público rotación. EMT,4,EMT,40.424566594579844,-3.6899280268870585,50,2,1
+38,4,Salamanca,5,Lista,Plaza de Marqués de Salamanca,Aparcamiento,Aparcamiento público rotación. EMT,1,EMT,40.4303299216082,-3.679174688067179,50,2,1
+39,5,Chamartín,6,Castilla,Calle Hiedra 36,Aparcamiento,Aparcamiento público rotación. EMT,1,EMT,40.472309741349065,-3.67899631012776,50,2,1
+40,1,Centro,1,Palacio,Plaza de la Cebada,Aparcamiento,Iniciativa privada,1,DRIVE THE CITY,40.410747140480105,-3.710168619760115,50,2,0
+41,1,Centro,5,Universidad,Calle Alberto Aguilera 9,Estación de servicio,,1,REPSOL,40.429698719100166,-3.7083638724208585,50,2,0
+42,3,Retiro,2,Adelfas,Plaza del Conde de Casal 6,Aparcamiento,Aparcamiento privado rotación. Iniciativa privada,2,DRIVE THE CITY,40.40632160731441,-3.6694137285341477,50,2,0
+43,8,Fuencarral - El Pardo,8,El Goloso,Calle del Monasterio de Arlanza. 20 (Centro Comercial Montecarmelo),Aparcamiento,Aparcamiento privado rotación. Iniciativa privada,2,IBERDROLA,40.5098841282949,-3.690669564535374,50,2,0
+44,16,Hortaleza,3,Canillas,Avenida de Machupichu 105,Estación de servicio,Iniciativa privada,1,GIC,40.46497688261291,-3.6359822447240746,50,2,0
+45,16,Hortaleza,6,Valdefuentes,Avenida de Niceto Alcala Zamora 20,Estación de servicio,Iniciativa privada,1,GIC/ GALP,40.493745920126926,-3.648114421836406,50,2,0
+46,18,Villa de Vallecas,1,Casco Histórico de Vallecas,Avenida Eje Central. 7,Estación de servicio,Iniciativa privada,1,NATURGY,40.366657007980464,-3.655202444453376,50,2,1
+47,18,Villa de Vallecas,1,Casco Histórico de Vallecas,Carretera de Villaverde a Vallecas 278,Estación de servicio,,1,REPSOL,40.37263726740971,-3.6373730419295147,50,2,0
+48,21,Barajas,5,Corralejos,Avenida del Consejo de Europa 2,Estación de servicio,Iniciativa privada,4,GIC / CEPSA,40.45874057705391,-3.616579681755661,350,3,0
+49,21,Barajas,5,Corralejos,Avenida del Partenón 5 (Recinto IFEMA),Aparcamiento,Aparcamiento privado rotación. Iniciativa privada,2,IBERDROLA,40.464291747889604,-3.6163927643500178,50,2,0
+50,18,Villa de Vallecas,1,Casco Histórico de Vallecas,Parcela D.2.1 Anexo avenida de legazpi,Mercamadrid,,2,DRIVE THE CITY,40.35967946914824,-3.6619894488098255,50,2,1
+51,18,Villa de Vallecas,1,Casco Histórico de Vallecas,Parcela E4 Anexo Avda Legazpi,Mercamadrid,,1,DRIVE THE CITY,40.36403158363529,-3.6597222861612213,50,2,1
+52,18,Villa de Vallecas,1,Casco Histórico de Vallecas,Parcela B14 Anexo Calle 3,Mercamadrid,,1,GIC (CIRCUTOR),40.35913649207819,-3.6705654063952577,50,2,1
+53,3,Retiro,4,Ibiza,Calle Ibiza 1,Vía pública,,1,REPSOL,40.418538684799735,-3.6784274816989235,50,2,1
+54,3,Retiro,5,Jerónimos,Plaza de la Lealtad. s/n,Vía pública,,1,GIC,40.41614390921427,-3.6920151278001563,50,2,1
+55,11,Carabanchel,6,Buenavista,Calle Hilario Herranz Establos. 20,Estación de servicio,,1,ENDESA,40.372709402953284,-3.7291282365607183,50,2,1
+56,9,Moncloa - Aravaca,2,Argüelles,Calle Marqués de Urquijo. 27,Aparcamiento,Aparcamiento privado rotación,1,ENDESA,40.4295660204493,-3.719103257210527,50,2,1
+57,17,Villaverde,1,Villaverde Alto, Casco Histórico de Villaverde,Calle Valle de Tobalina. 24 (ES Ballenoil),Estación de servicio,1,IBERDROLA,40.33612156678147,-3.7152255393418763,50,2,0
+58,6,Tetuán,2,Cuatro Caminos,Calle Bravo Murillo. 122,Aparcamiento,Mercado Municipal,2,DRIVE THE CITY,40.44907279100186,-3.703462120749672,50,2,1
+59,12,Usera,2,Orcasur,Calle de Eduardo Barreiros. 2 (On rent),Aparcamiento,Aparcamiento privado rotación,1,ENDESA,40.37365248015676,-3.6958462916457213,50,2,1
+60,12,Usera,2,Orcasur,Carretera A-4. P.K. 6.70 D,Estación de servicio,,1,REPSOL,40.36658328723617,-3.694378927522046,50,2,1
+61,16,Hortaleza,5,Apostol Santiago,Avenida de San Luis. 77,Aparcamiento,,1,NATURGY,40.47297432879045,-3.663139026847237,50,2,1
+62,18,Villa de Vallecas,1,Casco Histórico de Vallecas,Calle 29. Mercamadrid,Aparcamiento,,3,DRIVE THE CITY,40.357006454053895,-3.6613371699929345,50,2,1
+63,15,Ciudad Lineal,7,Colina,Calle Arturo Soria. 175,Estación de servicio,,1,REPSOL,40.457365951044366,-3.6580875769458214,50,2,1
+64,15,Ciudad Lineal,5,San Pascual,Calle Verdaguer y Garcia. 5,Aparcamiento,Aparcamiento privado rotación,1,ENDESA,40.440051678376435,-3.6561138533321764,50,2,1
+65,14,Moratalaz,3,Marroquina,Glorieta Corregidor Sancho de Córdoba S/N,Estación de servicio,,1,REPSOL,40.40734578948913,-3.6518750443832255,50,2,1
+66,20,San Blas - Canillejas,1,Simancas,Calle Alcalá. 510,Estación de servicio,,1,REPSOL,40.44117968033125,-3.6253810297974267,50,2,1
+67,20,San Blas - Canillejas,4,Arcos,Avenida Canillejas a Vicálvaro. 80,Estación de servicio,,1,GALP,40.4262497191891,-3.611605970811291,50,2,1
+68,18,Villa de Vallecas,3,Ensanche de Vallecas,Calle Alto del Retiro. s/n,Estación de servicio,,1,ENDESA,40.36654737118795,-3.58770313298305,50,2,1
+69,20,San Blas - Canillejas,6,Rejas,Calle Deyanira. 10,Aparcamiento,,1,NATURGY,40.44286808959268,-3.586266874205793,50,2,1
+70,20,San Blas - Canillejas,6,Rejas,Calle Nanclares de Oca. 5-17,Aparcamiento,,2,IBERDROLA,40.44608034510149,-3.5755832899764934,50,2,1
+71,18,Villa de Vallecas,1,Casco Histórico de Vallecas,Avenida Eje Central. 7,Estación de servicio,,1,NATURGY,40.366688788661186,-3.6552027521984902,50,2,1
+72,1,Centro,4,Justicia,Calle Génova 24,Vía pública,,1,GIC,40.42587294259599,-3.692395144947379,50,2,1
+73,6,Tetuán,4,Almenara,Calle San Aquilino. 1 B,Aparcamiento,Iniciativa privada,2,IBERDROLA,40.46753120614868,-3.6910000072921,50,2,0
+74,5,Chamartín,2,Prosperidad,Avenida de América 9 A. planta -3,Aparcamiento,Iniciativa privada,2,IBERDROLA,40.43801227894585,-3.676681769963744,50,2,0
+75,18,Villa de Vallecas,18,Casco Histórico de Vallecas,Avda. de Madrid - Aparcamiento Este del Mercado Central de Pescados (Parcela C2),Mercamadrid, ,2, ,40.35899019496731,-3.6618746820841204,50,2,1
+76,18,Villa de Vallecas,18,Casco Histórico de Vallecas,Avda. de Madrid - Aparcamiento Este del Mercado Central  de Pescados (Parcela C2)  Mercamadrid.,Mercamadrid, ,1, ,40.35701811872046,-3.6612978466089174,150,1,0
+77,18,Villa de Vallecas,18,Casco Histórico de Vallecas,Calle 29. Mercamadrid,Aparcamiento,Iniciativa privada,1,DRIVE THE CITY,40.356995630761126,-3.6613694156287213,180,2,0

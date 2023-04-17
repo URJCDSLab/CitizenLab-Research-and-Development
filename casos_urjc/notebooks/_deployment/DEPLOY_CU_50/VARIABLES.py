@@ -1,0 +1,14 @@
+N = 10
+num_max_cargadores_estacion = 10 
+NUMERO_SESIONES = 10 
+distancia_andando = 500 
+COSTE_INSTALACION = 2000 
+COSTE_CARGADOR = 3000 
+VIDA_UTIL = 4 
+COSTE_ESPACIO = 1000 
+precio_electricidad = 0.17 
+capacidad_bateria = 52 
+COSTE_CARGA = 0.1 
+TIEMPO_CARGA = 240 
+ratio_penetracion_VE= 0.10 
+probabilidad_de_carga = 0.05 
