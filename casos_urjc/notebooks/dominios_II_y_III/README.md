@@ -18,8 +18,9 @@ churros y poder pasar al deploy con shiny.
 * Cogemos la plantilla del proceso, la copiamos en la carpeta del caso dentro de
 `dominios_II_y_III` y renombramos, por ejemplo: 
 
-06.- Data Adequacy_CU_xx_xx_xxxx_v_01.ipynb -> 06.- Data Adequacy_CU_04_01_datos_completos_v_01.ipynb
+06.- Data Adequacy_CU_xx_xx_xxxx_v_01.ipynb -> 06.- Data Adequacy_CU_04_19_datos_completos_v_01.ipynb
 
+En este ejemplo el 19 es el notebook de 05 que generó el archivo de datos completos.
 
 * Todas las plantillas ya tienen el código que importa los datos y muestra la estructura.
 Solo hay que poner el nombre del archivo donde pone:
