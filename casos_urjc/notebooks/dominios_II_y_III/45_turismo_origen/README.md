@@ -20,11 +20,11 @@ Datos
 
 **Datos oficiales o alojamiento** 
 
-- [ ] Fechas inicio y fin de referencia -> Datos por meses
+- [X] Fechas inicio y fin de referencia -> Datos por meses
 - [ ] Zona/s geográfica de referencia -> No se ha conseguido
 - [ ] Motivo de viaje -> No se ha conseguido
-- [ ] Origen (nacional/internacional) -> País concreto
-- [ ] Duración estancia (se calcula con fechas) 
+- [X] Origen (nacional/internacional) -> País concreto
+- [ ] Duración estancia (se calcula con fechas)  -> Tenemos número total de turistas por mes y país
 
 **Datos de transporte** -> No se han conseguido
 

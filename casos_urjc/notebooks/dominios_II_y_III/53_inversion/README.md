@@ -9,8 +9,8 @@ Tareas de otros procesos del dominio:
 
 ## Datos
 
-[ ] SPI por ámbito geográfico a estudiar (país, municipio, distrito, ...)
-[ ] Inversiones en sanidad, turismo e infraestructuras en el ámbito geográfico y temporal a estudiar.
+[X] SPI por ámbito geográfico a estudiar (país, municipio, distrito, ...)
+[X] Inversiones en sanidad, turismo e infraestructuras en el ámbito geográfico y temporal a estudiar.
 
 
 SPI de países, inversiones de CM. Es lo que hay.
