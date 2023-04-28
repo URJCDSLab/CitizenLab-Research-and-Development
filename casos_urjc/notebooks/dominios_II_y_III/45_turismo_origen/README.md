@@ -5,7 +5,7 @@ Tareas de otros procesos
 ------------------------
 
 * Limpiar nombres de columnas
-* NA secreto estadístico??
+* NA secreto estadístico en paso 04
 
 Datos
 -----------
