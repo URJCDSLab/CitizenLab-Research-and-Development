@@ -26,8 +26,8 @@ Tareas de otros procesos del dominio:
 [ ] IPC 
 [ ] Tipo de cambio
 [ ] Tipo de destino
-[ ] Temperatura y humedad medias
-[ ] Precipitaciones durante la estancia"
+[X] Temperatura y humedad medias -> Lo cojo de otro caso de uso
+[X] Precipitaciones durante la estancia -> Lo cojo del otro caso 
 
 
 
