@@ -26,7 +26,7 @@ Paso 2
 
 Tipo: Parametrización/configuración
 
-Qué hace: Parmámetros de configuración
+Qué hace: Parámetros de configuración
 
 Terminal:
 
