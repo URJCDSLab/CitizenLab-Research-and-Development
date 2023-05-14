@@ -9,6 +9,7 @@ también los fragmentos de llamada a los scripts y enlace al navegador como corr
 (dejo los cu_04 sin tocar). De las variables (paso 2) hay instrucciones en el propio
 archivo VARIABLES.csv en `**step_01_input`.
 
+NOTA: en maestros hay dos archivos de más de 100 MB que he comprimido: descomprimir para que funcione el código (están en el .gitignore para evitar subirlos)
 
 
 Paso 1
