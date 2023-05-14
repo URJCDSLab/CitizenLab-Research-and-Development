@@ -1,4 +1,4 @@
-Notas para resolver issues de notebooks R
+## Notas para resolver issues de notebooks R
 
 
 * Nos piden notebooks de todos los procesos para cada caso. Idealmente
