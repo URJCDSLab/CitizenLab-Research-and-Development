@@ -2,12 +2,3 @@ variable,tipo,valor,min,max,control,nombre,etiqueta,descripcion,instrucciones
 "MODELO","character","Clustering",NA,NA,"selectInput","Modelo","Modelo del experimento","Según el modelo seleccionado, se accede a las páginas específicas","Opciones posibles: Clustering, Regresión y Simulación"
 "NIVEL","character","Distrito",NA,NA,"selectInput","Nivel","Nivel de detalle","A nivel distrito se tienen datos agregados de infraestructuras y otros datos a nivel distrito como socioeconómicos; a nivel diario se tienen datos de capacidad y demanda, y otros a nivel diario como meteorológicos","Opciones posibles: Distrito, Diario"
 "NSIM","character","1000","10","1000000","numericInput","N.Simulaciones","Número de simulaciones","Número de simulaciones que se ejecutarán en el paso de simulación de modelos.","Valores potencias de 10"
-
-
-
-"ANO","numeric",2021,2018,2023,"sliderInput","Año","Campaña (año)","Año de inicio de la campaña de vacunación histórica que quiere visualizar. Por ejemplo, para la campaña 2021/2022, seleccione el año 2021","Seleccionar de entre los valores únicos en archivo de vacunación"
-"ZONA","character",NA,NA,NA,"selectInput","Zona","Zona sanitaria","Zona sanitaria de la que se quiere realizar la visualización","Seleccionar de entre los valores únicos en archivo de vacunación. En el input, seleccionar el código, y mostrar el nombre (o el nombre y el código)"
-"SEMANA_INICIO","numeric",36,25,52,"sliderInput","Inicio","Semana inicio campaña","Semana de inicio de la campaña","Se utilizan para filtrar los datos de campañas"
-"SEMANA_FIN","numeric",5,1,24,"sliderInput","Fin","Semana fin campaña","Semana de fin de la campaña","Se utilizan para filtrar los datos de campañas"
-"PREDICTOR","character","t1_1",NA,NA,"selectInput","Predictor","Variable predictora","Variable predictora por defecto en las visualizaciones","Se selecciona de entre los nombres de columna de los objetos importados (ESCUCHA, HISTORICO, INDICADORES), excluyendo GEOCODIGO, DESBDT, ano, seamana, Idealmente se mostrarían por grupos"
-"NIVEL_CONFIANZA","numeric",90,80,99,"numericInput","Niv.Confiana","Nivel de confianza","Nivel de confianza para los modelos","Se utiliza para obtener un intervalo de confianza en la predicción de series. Debe ser un número entre 80 y 99"
