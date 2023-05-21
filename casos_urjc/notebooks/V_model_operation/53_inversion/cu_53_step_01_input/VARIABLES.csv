@@ -1,4 +1,7 @@
 variable,tipo,valor,min,max,control,nombre,etiqueta,descripcion,instrucciones
-"MODELO","character","Clustering",NA,NA,"selectInput","Modelo","Modelo del experimento","Según el modelo seleccionado, se accede a las páginas específicas","Opciones posibles: Clustering, Regresión y Simulación"
-"NIVEL","character","Distrito",NA,NA,"selectInput","Nivel","Nivel de detalle","A nivel distrito se tienen datos agregados de infraestructuras y otros datos a nivel distrito como socioeconómicos; a nivel diario se tienen datos de capacidad y demanda, y otros a nivel diario como meteorológicos","Opciones posibles: Distrito, Diario"
-"NSIM","character","1000","10","1000000","numericInput","N.Simulaciones","Número de simulaciones","Número de simulaciones que se ejecutarán en el paso de simulación de modelos.","Valores potencias de 10"
+"MODELO","character","Regresión",NA,NA,"selectInput","Modelo","Modelo del experimento","Según el modelo seleccionado, se accede a las páginas específicas","Opciones posibles: Regresión, Serie Temporal y Optimización"
+"ANYOOPT","numeric","2023",2023,2030,"numericInput","Año","Año a optimizar","En el modelo de optimización, año para el que se hace la optimización",""
+"RESTINVTOT","numeric","90",1,100,"numericInput","Inv.Total","Límite inversión total","En el modelo de optimización, restricción de la suma de porcentajes de inversión en los tres grupos (máximo)",""
+"RESTINVINF","numeric","50",1,100,"numericInput","Inv.Infraest.","Mínimo inversión en infraestructuras","En el modelo de optimización, restricción del porcentaje de inversión en infraestructuras (mínimo)",""
+"RESTINVTUR","numeric","1",1,100,"numericInput","Inv.Tur.","Mínimo inversión en turismo","En el modelo de optimización, restricción del porcentaje de inversión en turismo (mínimo)",""
+"RESTINVSAN","numeric","2",1,100,"numericInput","Inv.Tur.","Mínimo inversión en sanidad","En el modelo de optimización, restricción del porcentaje de inversión en sanidad (mínimo)",""

@@ -7,6 +7,8 @@ library(ggplot2)
 library(DT)
 library(plotly)
 
+setwd("~/academico/gh_repos/__transferencia/citizenlab/CitizenLab-Research-and-Development/casos_urjc/notebooks/V_model_operation/53_inversion")
+
 inversiones <- read_csv("cu_53_step_01_input/CU_53_05_05_inversiones_cm.csv")
 
 

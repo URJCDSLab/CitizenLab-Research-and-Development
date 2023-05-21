@@ -20,14 +20,13 @@ Qué hace: Carga de ficheros
 
 > ARCHIVOS QUE SE TIENEN QUE PODER CARGAR:
 >> * CU_53_05_02_01_spi.csv
->> *CU_53_05_02_02_spi_metadata.csv
->> *CU_53_05_03_paisesgeo.json
->> *CU_53_05_05_inversiones_cm.csv
+>> * CU_53_05_02_02_spi_metadata.csv
+>> * CU_53_05_03_paisesgeo.json
+>> * CU_53_05_05_inversiones_cm.csv
 
 
->> * ESCENARIO_CLUSTER_DIARIO.csv
->> * ESCENARIO_CLUSTER_DIST.csv
->> * ESCENARIO_REGRESION.csv
+>> * ESCENARIO_INVERSIONES_PAISES.csv
+>> * ESCENARIO_INVERSIONES_REGION.csv
 >
 >Vienen de la carpeta Data/Output del caso en notbooks dominios II y III
 >Copiados a mano en step_01_input
@@ -66,6 +65,18 @@ http://127.0.0.1:4000/?carpeta_entrada=cu_04_step_01_output&carpeta_salida=cu_04
 
 
 > VARIABLES QUE SE TIENEN QUE PODER MODIFICAR Y TIPO DE CONTROL:
+>
+> MODELO
+>
+> ANYOOPT
+>
+> RESTINVTOT
+>
+> RESTINVINF
+>
+> RESTINVTUR
+>
+> RESTINVSAN
 
 
 Paso 3
@@ -99,9 +110,9 @@ http://127.0.0.1:4000/?carpeta_entrada=cu_04_step_02_output&carpeta_salida=cu_04
 Paso 4
 ------
 
-Tipo: Visualización de resultados
+Tipo: Visualización de resultados y procesamiento de datos
 
-Qué hace: Visualizar la clasificación de infraestructuras guardada
+Qué hace: Estima el modelo de regresión y visualiza los resultados
 
 
 Terminal:
@@ -115,20 +126,21 @@ Navegador:
 http://127.0.0.1:4000/?carpeta_entrada=cu_04_step_02_output&carpeta_salida=cu_04_step_04_output&carpeta_maestros=cu_04_maestros
 
 
->Cargar datos de clusters de cu_19_maestros
->Si se ha seleccionado NIVEL=Distrito, entonces mapa de áreas coloreado según el cluster
+>ESTIMAR MODELO
+>Cargar escenario de regresión de input paso 1
 >
->Si se ha seleccionado NIVEL=Diario, entonces mapa de puntos, coloreado según el cluster
+>Estimar el modelo de regresión (ver cu_53_modelos_regresion.R)
 >
->Texto en popup: Distrito o nombre infraestructura
+>Guardar modelo en carpeta output
 >
->Texto en label: tabla con valores de todas las variables que no sean cero 
+>Mostrar tabla de coeficientes y valor de lambda optimo
 >
->Gráfico clusters: Ver paso_04_ejemplos.R
->Tabla clusters: Ver paso_04_ejemplos.R
+>PREDECIR VALOR
 >
-> Predicción escenario: tabla con los valores y el cluster asignado a cada línea
-del escenario. Ver paso_04_ejemplos.R
+>Cargar escenario de inversión de input paso 1
+>
+>Hacer predicción de los escenarios con el modelo
+
 
 
 Paso 5
@@ -136,7 +148,7 @@ Paso 5
 
 Tipo: Visualización y procesamiento de datos
 
-Qué hace: Visualizar modelo GLM y predecir escenarios
+Qué hace: Estimar SPI con inversiones y proyectar serie temporal
 
 
 Terminal:
@@ -145,12 +157,15 @@ Terminal:
 $ Rscript xxxxxx
 ````
 
->Se carga el modelo de regresión. Se muestra summary y gráfico de dispersión
-respuesta (evento_infra o evento_zona) vs una de las variables del modelo
-seleccionadas.
+>Se carga el modelo de regresión y los datos de inversiones de la entrada
 >
->Se hace predicción del escenario guardado. Se muestra tabla con valores y 
-probabilidad predicha.
+>Se transforman los datos de inversiones para hacer la estimación con modelo
+>
+>Se ajusta el modelo ARIMA
+>
+>Se muestran parámetros modelo ARIMA
+>
+>Se muestran las series de la estimación y su proyección.
 
 
 Paso 6
@@ -158,7 +173,7 @@ Paso 6
 
 Tipo: Visualización de resultados y procesamiento de datos
 
-Qué hace: Simular miles de valores según escenario y visualizar resumen del resultado
+Qué hace: Resolver problema de optimización SPI y mostrar resultados
 
 Terminal:
 
@@ -170,16 +185,9 @@ Navegador:
 
 http://127.0.0.1:4000/?carpeta_entrada=cu_04_step_05_output&carpeta_salida=cu_04_step_06_output&carpeta_maestros=cu_04_maestros
 
->Se selecciona modelo a simular: cluster o regresión. El de cluster, solo se considera el de distritos.
->El de regresión, se selecciona eventos_zona o eventos_infra
+>Se cargan los parámetros de configuración: restricciones y año a predecir
 >
->Se carga el escenario y se calculan las medias y desviación típicas de las variables.
->Se simulan NSIM realizaciones multivariantes, tomando distribución Poisson si es
->recuentos y normal si es continua, con sus parámetros.
+>Se resuelve la optimización
 >
->Se presentan gráficos de barras con las predicciones (clusters, clasificación), y
-tabla.
->
->Ver ejemplos en paso_06_ejemplos.
-
+>Se muestran los valores óptimos
 
