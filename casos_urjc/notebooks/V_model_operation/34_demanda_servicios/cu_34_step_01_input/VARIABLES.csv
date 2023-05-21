@@ -1,0 +1,2 @@
+variable,tipo,valor,min,max,control,nombre,etiqueta,descripcion,instrucciones
+"NSIM","character","1000","10","1000000","numericInput","N.Simulaciones","Número de simulaciones","Número de simulaciones que se ejecutarán en el paso de simulación de modelos.","Valores potencias de 10"
