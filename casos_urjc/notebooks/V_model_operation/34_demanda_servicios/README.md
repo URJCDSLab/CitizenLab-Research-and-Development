@@ -1,4 +1,5 @@
-Ejecución del caso CU34_Predicción de demanda de servicios			
+Ejecución del caso CU45_Planificación y promoción del destino en base a los patrones en origen de los turistas			
+			
 ========================================================================
 
 
@@ -20,6 +21,7 @@ Qué hace: Carga de ficheros
 
 > ARCHIVOS QUE SE TIENEN QUE PODER CARGAR:
 >> * CU_34_05_05_servicios_completo.csv
+>> * CU_34_05_01_secciones_geo.json
 
 
 >> * ESCENARIO_SERVICIOS.csv
@@ -62,7 +64,7 @@ http://127.0.0.1:4000/?carpeta_entrada=cu_04_step_01_output&carpeta_salida=cu_04
 
 > VARIABLES QUE SE TIENEN QUE PODER MODIFICAR Y TIPO DE CONTROL:
 >
-> XXX
+> NSIM
 
 
 Paso 3
