@@ -1,5 +1,4 @@
-Ejecución del caso CU45_Planificación y promoción del destino en base a los patrones en origen de los turistas			
-			
+CU34_Predicción de demanda de servicios
 ========================================================================
 
 
