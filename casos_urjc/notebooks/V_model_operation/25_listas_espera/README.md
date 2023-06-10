@@ -37,12 +37,12 @@ Qué hace: Carga de ficheros
 Terminal:
 
 ````
-$ Rscript -e 'shiny::runApp("cu_04_step_01_app.R", port = 4000)'
+$ Rscript -e 'shiny::runApp("cu_25_step_01_app.R", port = 4000)'
 ````
 
 Navegador:
 
-http://127.0.0.1:4000/?carpeta_entrada=cu_04_step_01_input&carpeta_salida=cu_04_step_01_output&carpeta_maestros=cu_04_maestros
+http://127.0.0.1:4000/?carpeta_entrada=cu_25_step_01_input&carpeta_salida=cu_25_step_01_output&carpeta_maestros=cu_25_maestros
 
 
 Paso 2
