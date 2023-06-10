@@ -87,18 +87,11 @@ ui <- function(request){
                          tabPanel("Fichero de ejemplo",
                                   pickerInput(
                                     inputId = "piindicadores",
-                                    label = "Fichero indicadores",
+                                    label = "Fichero hospitales",
                                     choices = c("CU_25_05_05_01_hospitales.csv"),
                                     options = list(
                                       title = "Seleccione un fichero")
                                   ),
-                                  pickerInput(
-                                    inputId = "piindicadoresmeta",
-                                    label = "Fichero nombres indicadores",
-                                    choices = c("CU_04_05_03_02_indicadores_nombres.csv"),
-                                    options = list(
-                                      title = "Seleccione un fichero")
-                                  )
                          ),
                          tabPanel("Fichero de usuario",
                                   p("Disponible en versiones post-prototipo"))
@@ -111,9 +104,7 @@ ui <- function(request){
       column(8,
              tabsetPanel(id = "tsindicadoresdatos",
                          tabPanel("Datos",
-                                  dataTableOutput("tindicadores")),
-                         tabPanel("Nombres indicadores",
-                                  dataTableOutput("tindicadoresmeta")))
+                                  dataTableOutput("tindicadores")),)
       ),
     ),
     hr(),
@@ -125,7 +116,7 @@ ui <- function(request){
                          tabPanel("Fichero de ejemplo",
                                   pickerInput(
                                     inputId = "piescucha",
-                                    label = "Fichero datos de escucha",
+                                    label = "Fichero datos de indicadores de area",
                                     choices = c("CU_25_05_06_indicadores_area.csv"),
                                     options = list(
                                       title = "Seleccione un fichero")
@@ -152,7 +143,7 @@ ui <- function(request){
                          tabPanel("Fichero de ejemplo",
                                   pickerInput(
                                     inputId = "piescenario",
-                                    label = "Fichero escenario campaña",
+                                    label = "Fichero de capacidad",
                                     choices = c("CU_25_05_07_01_capacidad.csv"),
                                     options = list(
                                       title = "Seleccione un fichero")
@@ -171,6 +162,13 @@ ui <- function(request){
       ),
     ),
 
+    hr(),
+    # fluidRow(
+    h3("Guardar datos para el siguiente paso"),
+    actionBttn("abguardar",
+               "Guardar datos",
+               size = "md",
+               icon = icon("floppy-disk")),
     br(),br()
     # )
   )
@@ -184,6 +182,10 @@ server <- function(input, output, session) {
     carpeta_entrada <- getQueryString()$carpeta_entrada
     carpeta_salida <- getQueryString()$carpeta_salida
     carpeta_maestros <- getQueryString()$carpeta_maestros
+    print(carpeta_entrada)
+    print(carpeta_maestros)
+    print(carpeta_salida)
+    print("============")
     if(any(is.null(carpeta_entrada), 
            is.null(carpeta_salida), 
            is.null(carpeta_maestros))){
@@ -289,25 +291,6 @@ server <- function(input, output, session) {
     }
   })
   
-  dfindicadoresmeta <- reactive({
-    if(!is.list(carpetas())){
-      sendSweetAlert(
-        session = session,
-        title = "Error",
-        text = "No se ha encontrado alguna carpeta necesaria para el caso",
-        type = "error"
-      )
-      stopApp()
-    }
-    if(input$piindicadoresmeta != ""){
-      file_name <- paste0(carpetas()$carpeta_entrada, "/", input$piindicadoresmeta)
-      read_csv(file_name, show_col_types = FALSE)
-    } else if (FALSE){ ## AÑADIR POSIBILIDAD DE FICHERO
-      
-    } else{
-      NA
-    }
-  })
   
   dfescucha <- reactive({
     if(!is.list(carpetas())){
@@ -400,38 +383,22 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$abguardar, {
-    cond <- is.na(list(sfzonas(), 
-                       dfhistorico(), 
-                       dfindicadores(), 
-                       dfindicadoresmeta(),
-                       dfescucha(),
-                       dfescenario(),
-                       dfnuevacampana()))
-    if(any(cond)){
-      sendSweetAlert(
-        session = session,
-        title = "No se pudo completar",
-        text = "No se han seleccionado todos los ficheros de datos requeridos",
-        type = "warning"
-      )
-      
-    } else{
-      ## Guardar archivos de este caso
-      st_write(obj = sfzonas(), 
-               dsn = paste0(carpetas()$carpeta_salida, "/ZONAS.json"), 
-               driver = "GeoJSON",
-               delete_dsn = TRUE)
-      write_csv(dfhistorico(), paste0(carpetas()$carpeta_salida, "/HISTORICO.csv"))
-      write_csv(dfindicadores(), paste0(carpetas()$carpeta_salida, "/INDICADORES.csv"))
-      write_csv(dfindicadoresmeta(), paste0(carpetas()$carpeta_salida, "/INDICADORES_META.csv"))
-      write_csv(dfescucha(), paste0(carpetas()$carpeta_salida, "/ESCUCHA.csv"))
-      write_csv(dfescenario(), paste0(carpetas()$carpeta_salida, "/ESCENARIO.csv"))
-      write_csv(dfnuevacampana(), paste0(carpetas()$carpeta_salida, "/NUEVACAMPANA.csv"))
-      write_csv(dfnuevacapacidad(), paste0(carpetas()$carpeta_salida, "/CAPACIDAD.csv"))
-      ## Mover archivos de los siguientes casos
+
+
+
+    ## Copiar resto input a output para siguientes pasos
       file.copy(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"),
-                paste0(carpetas()$carpeta_salida, "/VARIABLES.csv"),
-                overwrite = TRUE)
+              paste0(carpetas()$carpeta_salida, "/VARIABLES.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_03_areasgeo.json"),
+              paste0(carpetas()$carpeta_salida, "/CU_25_05_03_areasgeo.json"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_05_01_hospitales.csv"),
+              paste0(carpetas()$carpeta_salida, "/CU_25_05_05_01_hospitales.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_06_indicadores_area.csv"),
+              paste0(carpetas()$carpeta_salida, "/CU_25_05_06_indicadores_area.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_07_01_capacidad.csv"),
+          paste0(carpetas()$carpeta_salida, "/CU_25_05_07_01_capacidad.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_07_02_lista_espera.csv"),
+          paste0(carpetas()$carpeta_salida, "/CU_25_05_07_02_lista_espera.csv"))
       sendSweetAlert(
         session = session,
         title = "¡¡ Éxito !!",
@@ -439,7 +406,7 @@ server <- function(input, output, session) {
         type = "success"
       )
       
-    }
+    
     
   })
   
@@ -478,14 +445,7 @@ server <- function(input, output, session) {
     req(input$piescenario)
     datatable(dfescenario())
   })
-  output$tnuevacampana <- renderDataTable({
-    req(input$pinuevacampana)
-    datatable(dfnuevacampana())
-  })
-  output$tnuevacapacidad <- renderDataTable({
-    req(input$pinuevacapacidad)
-    datatable(dfnuevacapacidad())
-  })
+
   
 }
 
