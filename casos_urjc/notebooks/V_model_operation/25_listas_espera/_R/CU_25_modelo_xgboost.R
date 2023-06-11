@@ -12,7 +12,7 @@ library(timetk)
 library(lubridate)
 library(tidyverse)
 
-
+Sys.setlocale(category = "LC_ALL", locale = "es_ES.UTF-8")
 indicadores <- read_csv("cu_25_step_01_input/CU_25_05_06_indicadores_area.csv")
 capacidad <- read_csv("cu_25_step_01_input/CU_25_05_07_01_capacidad.csv")
 lista <- read_csv("cu_25_step_01_input/CU_25_05_07_02_lista_espera.csv")
@@ -189,7 +189,7 @@ res_tiempo <- map(dfs, function(x){
 
 ## Predicción
 prediccion <- res_tiempo$`Centro-Norte.Angiología y Cirugía Vascular` |>
-  modeltime_forecast(h = 8, actual_data = dfs$`Centro-Norte.Angiología y Cirugía Vascular`)
+  modeltime_forecast(h = 2, actual_data = dfs$`Centro-Norte.Angiología y Cirugía Vascular`)
 
 ## Visualización
 dfs$`Centro-Norte.Angiología y Cirugía Vascular` |> 
