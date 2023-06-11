@@ -39,7 +39,7 @@ Qué hace: Carga de ficheros
 Terminal:
 
 ````
-$ Rscript -e 'shiny::runApp("cu_04_step_01_app.R", port = 4000)'
+$ Rscript -e 'shiny::runApp("cu_18_step_01_app.R", port = 4000)'
 ````
 
 Navegador:
@@ -57,7 +57,7 @@ Qué hace: Parámetros de configuración
 Terminal:
 
 ````
-$ Rscript -e 'shiny::runApp("cu_04_step_02_app.R", port = 4000)'
+$ Rscript -e 'shiny::runApp("cu_18_step_02_app.R", port = 4000)'
 ````
 
 Navegador:
@@ -81,7 +81,7 @@ Qué hace: Visualiza infraestructuras en el mapa y en forma de tabla
 Terminal:
 
 ````
-$ Rscript -e 'shiny::runApp("cu_04_step_03_app.R", port = 4000)'
+$ Rscript -e 'shiny::runApp("cu_18_step_03_app.R", port = 4000)'
 ````
 
 Navegador:
@@ -110,7 +110,7 @@ Qué hace: Visualizar la clasificación de infraestructuras guardada
 Terminal:
 
 ````
-$ Rscript -e 'shiny::runApp("cu_04_step_04_app.R", port = 4000)'
+$ Rscript -e 'shiny::runApp("cu_18_step_04_app.R", port = 4000)'
 ````
 
 Navegador:
@@ -166,7 +166,7 @@ Qué hace: Simular miles de valores según escenario y visualizar resumen del re
 Terminal:
 
 ````
-$ Rscript -e 'shiny::runApp("cu_04_step_06_app.R", port = 4000)'
+$ Rscript -e 'shiny::runApp("cu_18_step_06_app.R", port = 4000)'
 ````
 
 Navegador:
