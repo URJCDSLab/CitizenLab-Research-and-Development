@@ -45,6 +45,7 @@ ui <- function(request) {
 
     # ... Otros elementos de la UI
     
+    
     fluidRow(
           # fluidRow(
     h3("Guardar datos para el siguiente paso"),
@@ -65,6 +66,10 @@ ui <- function(request) {
 
          
   ),
+  actionButton("submit", "Mostrar Capacidad")
+    ),
+        mainPanel(
+      tableOutput("capacidad_table")
     )
   )
 }
@@ -147,6 +152,34 @@ server <- function(input, output, session) {
   modelos_xgboost <- reactive({
     read_rds(paste0(carpetas()$carpeta_maestros, 
                     "/modelos_tiempo_xgboost.rds"))
+  })
+
+
+  # Calcular y mostrar la capacidad seleccionada
+  output$capacidad_table <- renderTable({
+    if (!is.null(input$submit)) {
+      capacidad_seleccionada <- dfcapacidad() %>%
+        filter(Especialidad == input$especialidad, nombre_area == input$zona)
+      capacidad_seleccionada
+    }
+  })
+
+    output$uizona <- renderUI({
+  selectInput(
+    inputId = "zona",
+    label = "Zona",
+    choices = c("Centro-Norte","Centro-Oeste","Este","Norte","Oeste","Sur I","Sur Ii","Sur-Este","Sur-Oeste I","Sur-Oeste Ii"),
+    selected = "Centro-Norte"
+  )
+})
+
+  output$uiespecialidad <- renderUI({
+    selectInput(
+      inputId = "especialidad",
+      label = "Especialidad",
+      choices = unique(dfhistorico()$Especialidad),
+      selected = "Angiología y Cirugía Vascular"
+    )
   })
 
 }
