@@ -1,7 +1,5 @@
 ## PROCESO PREDICCIÓN Y SIMULACIÓN MASIVA
 
-setwd("~/academico/gh_repos/__transferencia/citizenlab/CitizenLab-Research-and-Development/casos_urjc/notebooks/V_model_operation/25_listas_espera/")
-
 library(readr)
 library(tidyverse)
 library(tidymodels)

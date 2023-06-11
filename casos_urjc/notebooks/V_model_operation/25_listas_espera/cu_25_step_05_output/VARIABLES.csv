@@ -1,0 +1,3 @@
+variable,tipo,valor,min,max,control,nombre,etiqueta,descripcion,instrucciones
+HORIZONTE,numeric,5,1,52,selectInput,Horizonte,Horizonte temporal (semanas),Número de semanas de las que se quiere hacer predicción con el modelo,"Valor numérico, por defecto"
+NPER,character,359,1,7300,numericInput,N.Periodos,Número de periodos,Número de periodos (días) a simular en el modelo Discrite Event Simulation.,Valores entre 1 y 7300
