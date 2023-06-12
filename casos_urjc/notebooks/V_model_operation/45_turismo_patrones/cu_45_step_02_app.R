@@ -21,19 +21,13 @@ ui <- function(request){
     titlePanel(title = "Parámetros de usuario - CitizenLab CU 45"),
     fluidRow(
       column(2,
-             uiOutput("uihorizonte"),
-      ),
-      column(2,
-             uiOutput("uinper"),
+             uiOutput("uinclus"),
       )
       
     ),
     fluidRow(
       column(2,
-             textOutput("texthorizonte")
-      ),
-      column(2,
-             textOutput("textnper")
+             textOutput("textnclus")
       )
       
     ),
@@ -57,8 +51,7 @@ server <- function(input, output, session) {
     carpeta_entrada <- getQueryString()$carpeta_entrada
     carpeta_salida <- getQueryString()$carpeta_salida
     if(any(is.null(carpeta_entrada), 
-           is.null(carpeta_salida), 
-           is.null(carpeta_maestros))){
+           is.null(carpeta_salida))){
       confirmSweetAlert(
         session = session,
         inputId = "error_carpetas_faltan",
@@ -84,9 +77,8 @@ server <- function(input, output, session) {
       warning("Revise la url, alguna carpeta requerida en el caso no existe.")
       invisible(NULL)
     } else{
-      return(invisible(list(carpeta_entrada = carpeta_entrada, 
-                            carpeta_salida = carpeta_salida, 
-                            carpeta_maestros = carpeta_maestros)))
+      return(invisible(list(carpeta_entrada = carpeta_entrada,
+                            carpeta_salida = carpeta_salida)))
     }
   })
   
@@ -105,46 +97,11 @@ server <- function(input, output, session) {
              show_col_types = FALSE)
   })
   
-  dfhistorico <- reactive({
-    read_csv(paste0(carpetas()$carpeta_entrada, "/HISTORICO.csv"), 
-             show_col_types = FALSE)
-  })
-  
-  dfindicadoresmeta <- reactive({
-    read_csv(paste0(carpetas()$carpeta_entrada, "/INDICADORES_META.csv"), 
-             show_col_types = FALSE)
-  })
-  
-  dfindicadores <- reactive({
-    read_csv(paste0(carpetas()$carpeta_entrada, "/INDICADORES.csv"), 
-             show_col_types = FALSE)
-  })
-  dfescucha <- reactive({
-    read_csv(paste0(carpetas()$carpeta_entrada, "/ESCUCHA.csv"), 
-             show_col_types = FALSE)
-  })
-  
-  dfpredictores <- reactive({
-    data.frame(predictor = colnames(dfhistorico()),
-               fichero = "Histórico") |> 
-      bind_rows(data.frame(predictor = colnames(dfindicadores()),
-                           fichero = "Indicadores")) |> 
-      bind_rows(data.frame(predictor = colnames(dfescucha()),
-                           fichero = "Escucha")) |> 
-      left_join(dfindicadoresmeta(),
-                by = c("predictor" = "Tabla")) |> 
-      mutate(Indicador = if_else(is.na(Indicador), 
-                                 predictor, 
-                                 Indicador)) |> 
-      filter(!(predictor %in% c("GEOCODIGO", "DESBDT", "ano", "semana", "n_vacunas")))
-  })
-  
   
   observeEvent(input$abguardar, {
     ## Guardar variables en output
     VARIABLES <- dfvariables()
-    VARIABLES$valor[VARIABLES$variable == "HORIZONTE"] <- input$horizonte
-    VARIABLES$valor[VARIABLES$variable == "NPER"] <- input$nper
+    VARIABLES$valor[VARIABLES$variable == "NCLUS"] <- input$nclus
 
 
     write_csv(VARIABLES, paste0(carpetas()$carpeta_salida, "/VARIABLES.csv"))
@@ -170,33 +127,19 @@ server <- function(input, output, session) {
   
   ## dynamic UI ----
   
-  # Render the 'Horizonte' input
-  output$uihorizonte <- renderUI({
-    selectInput(
-      inputId = "horizonte",
-      label = "Horizonte temporal (semanas)",
-      choices = seq(1, 52),
-      selected = 1
-    )
-  })
-
-  output$textano <- renderText({
-    dfvariables() |> filter(variable == "HORIZONTE") |> pull(descripcion)
-  })
-  
-    # Render the 'NPER' input
-  output$uinper <- renderUI({
+  # Render the 'NCLUS' input
+  output$uinclus <- renderUI({
     numericInput(
-      inputId = "nper",
-      label = "Número de periodos (días) a simular",
-      value = 365,
-      min = 1,
-      max = 7300
+      inputId = "nclus",
+      label = "Número de Clusters",
+      value = 4,
+      min = 2,
+      max = 10
     )
   })
 
-    output$textnper <- renderText({
-    dfvariables() |> filter(variable == "NPER") |> pull(descripcion)
+  output$textnclus <- renderText({
+    dfvariables() |> filter(variable == "NCLUS") |> pull(descripcion)
   })
 
 }
