@@ -105,6 +105,33 @@ ui <- function(request) {
 
 server <- function(input, output, session) {
   
+    observeEvent(input$abguardar, {
+
+
+    ## Copiar resto input a output para siguientes pasos
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_03_areasgeo.json"),
+              paste0(carpetas()$carpeta_salida, "/CU_25_05_03_areasgeo.json"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_05_01_hospitales.csv"),
+              paste0(carpetas()$carpeta_salida, "/CU_25_05_05_01_hospitales.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_06_indicadores_area.csv"),
+              paste0(carpetas()$carpeta_salida, "/CU_25_05_06_indicadores_area.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_07_01_capacidad.csv"),
+          paste0(carpetas()$carpeta_salida, "/CU_25_05_07_01_capacidad.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_07_02_lista_espera.csv"),
+          paste0(carpetas()$carpeta_salida, "/CU_25_05_07_02_lista_espera.csv"))
+        file.copy(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"),
+          paste0(carpetas()$carpeta_salida, "/VARIABLES.csv"))
+
+    
+
+    sendSweetAlert(
+      session = session,
+      title = "¡¡ Éxito !!",
+      text = "Se han guardado los ficheros para el siguiente paso del caso.",
+      type = "success"
+    )
+  })
+
 
   
   ## . carpetas ----
@@ -428,9 +455,9 @@ recursos <- get_mon_resources(env)
 recursos
 
 llegadas <- get_mon_arrivals(env, ongoing = TRUE)
+write_csv(llegadas, paste0(carpetas()$carpeta_salida, "/SIMULACIONES_LLEGADAS.csv"))
 llegadas
 
-    
   })
 
 

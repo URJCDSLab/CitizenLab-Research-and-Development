@@ -345,8 +345,9 @@ res_tiempo <- modelos_xgboost()
   ## Visualización
   dfs[[a]] |> 
     plot_time_series(fecha, total_pacientes)
-  prediccion |> plot_modeltime_forecast()
-  # write_csv(prediccion, paste0(carpetas()$carpeta_salida, "/PREDICCIONES.csv"))
+  a_preddicion <- prediccion |> plot_modeltime_forecast()
+  write_csv(a_preddicion, paste0(carpetas()$carpeta_salida, "/PREDICCIONES.csv"))
+  a_preddicion
 
 
   })
