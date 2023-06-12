@@ -45,33 +45,43 @@ ui <- function(request) {
 
     # ... Otros elementos de la UI
     
-    fluidRow(
-          # fluidRow(
-    h3("Guardar datos para el siguiente paso"),
-    actionBttn("abguardar",
-               "Guardar datos",
-               size = "md",
-               icon = icon("floppy-disk")),
-    br(),br(),
-      column(width = 6,
-             uiOutput("uihorizonte")
+    sidebarLayout(
+      sidebarPanel(
+        h3("Guardar datos para el siguiente paso"),
+        actionBttn("abguardar",
+                   "Guardar datos",
+                   size = "md",
+                   icon = icon("floppy-disk")),
+        br(), br(),
+        
+        column(width = 6,
+               uiOutput("uihorizonte")
+        ),
+        column(width = 6,
+               uiOutput("uiespecialidad")
+        ),
+        column(width = 6,
+               uiOutput("uizona")
+        ),
+        column(width = 6,
+               uiOutput("uiparametro")
+        )
       ),
-      column(width = 6,
-             uiOutput("uiespecialidad")
-      ),
-      column(width = 6,
-             uiOutput("uizona")
-      ),
-      column(width = 6,
-             uiOutput("uiparametro")
-      ),
-        column(width = 12,
-         plotlyOutput("serieTemporalPlot")
-         
-  ),
-          column(width = 12,
-         tableOutput("tabla_preds")
+      
+      mainPanel(
+        tabsetPanel(
+                    tabPanel("Tabla",
+                   column(width = 12,
+                          tableOutput("tabla_preds")
+                   )
+          ),
+          tabPanel("Visualización",
+                   column(width = 12,
+                          plotlyOutput("serieTemporalPlot")
+                   )
           )
+        )
+      )
     )
   )
 }

@@ -22,15 +22,18 @@ capacidad <- read_csv("cu_25_step_01_input/CU_25_05_07_01_capacidad.csv")
 # a <- "05"
 e <- "Angiología y Cirugía Vascular"
 z <- "Centro-Norte"
+NPER <- 365  
+h <- 2
 
 s <- paste(z, e, sep = ".")
-h <- 2
+
+
 cap <- capacidad |> 
   filter(nombre_area == z,
          Especialidad == e) |> 
   pull(capacidad)
 
-NPER <- 365  
+
   
 ## Si se elige último
 pacientes_en_cola <- modelo_pacientes |> 
