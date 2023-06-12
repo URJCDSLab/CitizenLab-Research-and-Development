@@ -296,14 +296,19 @@ server <- function(input, output, session) {
 
 
     ## Copiar resto input a output para siguientes pasos
+
     file.copy(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"),
               paste0(carpetas()$carpeta_salida, "/VARIABLES.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_45_05_02_valoracion_sim.json"),
+              paste0(carpetas()$carpeta_salida, "/CU_45_05_02_valoracion_sim.json"))
     file.copy(paste0(carpetas()$carpeta_entrada, "/CU_45_05_01_municipios_geo.json"),
               paste0(carpetas()$carpeta_salida, "/CU_45_05_01_municipios_geo.json"))
     file.copy(paste0(carpetas()$carpeta_entrada, "/CU_45_05_04_interno_prov.csv"),
               paste0(carpetas()$carpeta_salida, "/CU_45_05_04_interno_prov.csv"))
     file.copy(paste0(carpetas()$carpeta_entrada, "/CU_45_05_05_interno_mun.csv"),
               paste0(carpetas()$carpeta_salida, "/CU_45_05_05_interno_mun.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_45_05_03_receptor.csv"),
+              paste0(carpetas()$carpeta_salida, "/CU_45_05_03_receptor.csv"))
     sendSweetAlert(
         session = session,
         title = "¡¡ Éxito !!",
