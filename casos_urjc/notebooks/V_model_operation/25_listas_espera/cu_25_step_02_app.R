@@ -108,21 +108,27 @@ server <- function(input, output, session) {
   })
   
   dfhistorico <- reactive({
-    read_csv(paste0(carpetas()$carpeta_entrada, "/HISTORICO.csv"), 
+    read_csv(paste0(carpetas()$carpeta_entrada, "/CU_25_05_07_02_lista_espera.csv"), 
              show_col_types = FALSE)
   })
-  
-  dfindicadoresmeta <- reactive({
-    read_csv(paste0(carpetas()$carpeta_entrada, "/INDICADORES_META.csv"), 
+
+    dfhospitales <- reactive({
+    read_csv(paste0(carpetas()$carpeta_entrada, "/CU_25_05_05_01_hospitales.csv"), 
              show_col_types = FALSE)
   })
-  
-  dfindicadores <- reactive({
-    read_csv(paste0(carpetas()$carpeta_entrada, "/INDICADORES.csv"), 
+
+      dfcapacidad <- reactive({
+    read_csv(paste0(carpetas()$carpeta_entrada, "/CU_25_05_07_01_capacidad.csv"), 
              show_col_types = FALSE)
   })
-  dfescucha <- reactive({
-    read_csv(paste0(carpetas()$carpeta_entrada, "/ESCUCHA.csv"), 
+
+      dfindicadores <- reactive({
+    read_csv(paste0(carpetas()$carpeta_entrada, "/CU_25_05_06_indicadores_area.csv"), 
+             show_col_types = FALSE)
+  })
+
+    dfvariables <- reactive({
+    read_csv(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"), 
              show_col_types = FALSE)
   })
   
