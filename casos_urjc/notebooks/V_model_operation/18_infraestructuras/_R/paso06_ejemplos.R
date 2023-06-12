@@ -23,7 +23,7 @@ escenarios <- escenario |>
 
 ## Continuas
 icont <- c(61:75, 136:139)
-ncont <- colnames(escenario)[irec]
+ncont <- colnames(escenario)[icont]
 
 simulacion <- escenariom |> 
   # select(-all_of(irec)) |> 
