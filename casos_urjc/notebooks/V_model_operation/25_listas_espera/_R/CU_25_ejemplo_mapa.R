@@ -26,8 +26,11 @@ dmap |>
   leaflet() |> 
   addTiles() |> 
   addPolygons(color = ~qpal(.value), 
-              fillOpacity = 0.9,
+              fillOpacity = 0.8,
               weight = 1,
               popup = ~paste(round(.value), "personas"),
-              label = ~DESBDT)
-
+              label = ~DESBDT)  |> 
+  addLegend("bottomright", pal = qpal, values = ~.value,
+            title = "Pacientes (cuartil)",
+            opacity = 1
+  ) 
