@@ -14,6 +14,10 @@ library(leafem)
 library(leaflet)
 library(ggplot2)
 library(plotly, warn.conflicts = FALSE)
+if (!require(mapSpain)) {
+    install.packages("mapSpain")
+}
+library(mapSpain)
 
 # SERVER
 library(sf)
@@ -126,8 +130,8 @@ server <- function(input, output, session) {
   ## Render plot based on selected dataset and numeric variable
   output$plot_data <- renderLeaflet({
     if (!is.null(input$dataset_plot)) {
-      datageo <- st_read(paste0(carpetas()$carpeta_entrada, "/CU_45_05_01_municipios_geo.json"))
       message(input$dataset_plot)
+      datageo <- st_read(paste0(carpetas()$carpeta_entrada, "/CU_45_05_01_municipios_geo.json"))
       if (input$dataset_plot == "Datos recepción") {
         message("Datos receptor")
         df <- dfreceptor()
@@ -160,12 +164,14 @@ server <- function(input, output, session) {
         return(map)
       } else if (input$dataset_plot == "Datos emisión") {
         df <- dfmunicipios()
+        sfmuni <- esp_get_munic()
         df <- df |>
-            full_join(datageo, by = c("mun_orig_cod" = "LAU_CODE"))
+            full_join(sfmuni, by = c("mun_orig_cod" = "LAU_CODE"))
         
         mdata <- df |> 
-            group_by(geometry) |>
-            summarise(valor = sum(turistas, na.rm = TRUE))
+            group_by(geometry) |>  # Added grouping by pais_orig
+            summarise(valor = sum(turistas, na.rm = TRUE)) 
+
         pal <- colorNumeric(palette = "Blues",
                     domain = mdata$valor)
         map <- sf::st_as_sf(mdata) |> 
@@ -181,7 +187,7 @@ server <- function(input, output, session) {
             addLegend("bottomright", 
                       pal = pal, 
                       values = ~valor,
-                      title = "Turistas hacia Madrid",
+                      title = "Número de turistas que visitan Madrid",
                       labFormat = labelFormat(big.mark = " "),
                       opacity = 1
             )
