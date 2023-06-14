@@ -1,0 +1,4 @@
+variable,tipo,valor,min,max,control,nombre,etiqueta,descripcion,instrucciones
+MODELO,character,Clustering,NA,NA,selectInput,Modelo,Modelo del experimento,"Según el modelo seleccionado, se accede a las páginas específicas","Opciones posibles: Clustering, Regresión y Simulación"
+NIVEL,character,Distrito,NA,NA,selectInput,Nivel,Nivel de detalle,"A nivel distrito se tienen datos agregados de infraestructuras y otros datos a nivel distrito como socioeconómicos; a nivel diario se tienen datos de capacidad y demanda, y otros a nivel diario como meteorológicos","Opciones posibles: Distrito, Diario"
+NSIM,character,1000,10,1000000,numericInput,N.Simulaciones,Número de simulaciones,Número de simulaciones que se ejecutarán en el paso de simulación de modelos.,Valores potencias de 10
