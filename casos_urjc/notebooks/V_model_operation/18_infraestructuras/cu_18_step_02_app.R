@@ -155,7 +155,7 @@ server <- function(input, output, session) {
     selectInput(
       inputId = "modelo",
       label = "Modelo del experimento",
-      choices = c("Clustering"),
+      choices = c("Clustering", "Regresión", "Simulación"), 
       selected = "CLustering"    
       )
   })
@@ -168,7 +168,7 @@ server <- function(input, output, session) {
     selectInput(
       inputId = "nivel",
       label = "Nivel de detalle",
-      choices = c("Distrito"),
+      choices = c("Distrito", "Diario"),
       selected = "Distrito"    
       
     )
