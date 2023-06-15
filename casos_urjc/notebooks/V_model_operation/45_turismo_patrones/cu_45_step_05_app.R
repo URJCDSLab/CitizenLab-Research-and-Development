@@ -44,7 +44,7 @@ ui <- function(request) {
     useShinydashboard(),
     useWaiter(),
     
-    titlePanel(title = "SIMULACION 05 - CitizenLab CU 25"),
+    titlePanel(title = "SIMULACION 05 - CitizenLab CU 45"),
 
     # ... Otros elementos de la UI
     
