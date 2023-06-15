@@ -24,32 +24,43 @@ library(lubridate, warn.conflicts = FALSE)
 Sys.setlocale(category = "LC_ALL", locale = "es_ES.UTF-8")
 COL1 <- rgb(33/255, 150/255, 243/255)
 
+COL1 <- rgb(33/255, 150/255, 243/255)
+
 ui <- function(request) {
   fluidPage(
     theme = bs_theme(bootswatch = "flatly"),
-    titlePanel(title = "Visualización - CitizenLab CU 25"),
+    useShinydashboard(),
     
-    ## UI mainpanel ----
-    mainPanel(width = 12,
-              navbarPage("Visualización",
-                         tabPanel(title = "Table data",
-                                  selectInput("dataset", "Seleccionar conjunto de datos",
-                                              choices = c("Datos históricos", "Datos de capacidad", 
-                                                          "Indicadores de área", "Hospitales")),
-                                  DT::dataTableOutput("table_data") |>
-                                    withSpinner(7)
-                         ),
-                         tabPanel(title = "Plot data",
-                                  selectInput("dataset_plot", "Seleccionar conjunto de datos",
-                                              choices = c("Datos históricos", "Datos de capacidad", 
-                                                          "Indicadores de área", "Hospitales")),
-                                  selectInput("variable_plot", "Seleccionar variable numérica",
-                                              choices = NULL),
-                                  plotOutput("plot_data") |>
-                                    withSpinner(4)
-                         ),    # fluidRow(          
+    titlePanel(title = "SIMULACION 05 - CitizenLab CU 25"),
 
-              )
+    # ... Otros elementos de la UI
+    
+    sidebarLayout(
+      sidebarPanel(
+        h3("Guardar datos para el siguiente paso"),
+        actionBttn("abguardar",
+                   "Guardar datos",
+                   size = "md",
+                   icon = icon("floppy-disk")),
+        br(), br(),
+        uiOutput("uisemana"),
+        uiOutput("uiespecialidad"),                                  
+        selectInput("dataset_plot", "Seleccionar conjunto de datos",
+                                              choices = c("Datos lista de espera", "Datos de capacidad", 
+                                                          "Indicadores de área")),
+        selectInput("variable_plot", "Seleccionar variable numérica",
+                                              choices = NULL),
+
+      ),
+      
+      mainPanel(
+        tabsetPanel(
+          tabPanel("Mapa", 
+                   h1("Mapa"),
+                   leafletOutput("mapa")
+          )
+        )
+      )
     )
   )
 }
@@ -122,24 +133,43 @@ server <- function(input, output,session) {
     read_csv(paste0(carpetas()$carpeta_entrada, "/CU_25_05_05_01_hospitales.csv"), 
              show_col_types = FALSE)
   })
-  
-  ## Render table data
-  output$table_data <- DT::renderDataTable({
-    if (input$dataset == "Datos históricos") {
-      dfhistorico()
-    } else if (input$dataset == "Datos de capacidad") {
-      dfcapacidad()
-    } else if (input$dataset == "Indicadores de área") {
-      dfindicadores()
-    } else if (input$dataset == "Hospitales") {
-      dfhospitales()
-    }
+
+      df_zonas <- reactive({
+    st_read(paste0(carpetas()$carpeta_entrada, 
+                    "/CU_25_05_03_areasgeo.json"))
+  })
+
+  output$uiespecialidad <- renderUI({
+    selectInput(
+      inputId = "especialidad",
+      label = "Especialidad",
+      choices = unique(dfhistorico()$Especialidad),
+      selected = "Angiología y Cirugía Vascular"
+    )
+  })
+
+  output$uisemana <- renderUI({
+    selectInput(
+      inputId = "horizonte",
+      label = "Semana",
+      choices = seq(1, 52),
+      selected = 1
+    )
   })
 
 
-  ## Update variable options based on selected dataset for plotting
+  output$variable <- renderUI({
+    selectInput(
+      inputId = "horizonte",
+      label = "Semana",
+      choices = c("","",""),
+      selected = 1
+    )
+  })
+
+
   observeEvent(input$dataset_plot, {
-    if (input$dataset_plot == "Datos históricos") {
+    if (input$dataset_plot == "Datos lista de espera") {
       updateSelectInput(session, "variable_plot",
                         choices = colnames(dfhistorico() %>% select(where(is.numeric))))
     } else if (input$dataset_plot == "Datos de capacidad") {
@@ -148,50 +178,135 @@ server <- function(input, output,session) {
     } else if (input$dataset_plot == "Indicadores de área") {
       updateSelectInput(session, "variable_plot",
                         choices = colnames(dfindicadores() %>% select(where(is.numeric))))
-    } else if (input$dataset_plot == "Hospitales") {
-      updateSelectInput(session, "variable_plot",
-                        choices = colnames(dfhospitales() %>% select(where(is.numeric))))
-    }
+    } 
   })
-  
-  ## Render plot based on selected dataset and numeric variable
-  output$plot_data <- renderPlot({
-    if (!is.null(input$dataset_plot) && !is.null(input$variable_plot)) {
-      if (input$dataset_plot == "Datos históricos") {
-        df <- dfhistorico()
+
+  output$mapa <- renderLeaflet({
+    
+zonas <- df_zonas()
+esp <- input$especialidad
+h <- as.numeric(input$horizonte)
+
+      if (input$dataset_plot == "Datos lista de espera") {
+        datos <- dfhistorico()
+          dmap <- zonas |> 
+  full_join(datos |> 
+              filter(Especialidad == esp,
+                     semana == h),
+            by = c("DESBDT" = "nombre_area")) 
+
+qpal <- colorQuantile("Blues",  dmap[[input$variable_plot]], n = 4)  
+
+
+leaflet(data = dmap) %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = ~colorNumeric(
+      palette = "Blues",  # Color palette for the polygons
+      domain = dmap[[input$variable_plot]]
+    )(dmap[[input$variable_plot]]),  # Color polygons based on selected input variable
+    color = "#FFFFFF",  # Border color of polygons
+    opacity = 1,  # Border opacity of polygons
+    fillOpacity = 0.8,  # Fill opacity of polygons
+    highlight = highlightOptions(
+      weight = 2,  # Border weight of highlighted polygons
+      color = "#666666",  # Border color of highlighted polygons
+      fillOpacity = 0.8  # Fill opacity of highlighted polygons
+    ),
+    label = ~Especialidad,  # Labels of the polygons
+    group = "Media Tiempo Días"  # Group name for layer control
+  ) %>%
+  addLegend(
+    position = "bottomright",  # Legend position
+    pal = colorNumeric(
+      palette = "Blues",  # Color palette for the legend
+      domain = dmap[[input$variable_plot]]  # Range of values for the legend
+    ),
+    values = dmap[[input$variable_plot]],  # Values to display in the legend
+    title = input$variable_plot  # Title of the legend based on the selected input variable
+  )
+
       } else if (input$dataset_plot == "Datos de capacidad") {
-        df <- dfcapacidad()
+        datos <- dfcapacidad()
+          dmap <- zonas |> 
+  full_join(datos |> 
+              filter(Especialidad == esp),
+            by = c("DESBDT" = "nombre_area")) 
+
+
+qpal <- colorQuantile("Blues",  dmap[[input$variable_plot]], n = 4)  
+
+
+leaflet(data = dmap) %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = ~colorNumeric(
+      palette = "Blues",  # Color palette for the polygons
+      domain = dmap[[input$variable_plot]]
+    )(dmap[[input$variable_plot]]),  # Color polygons based on selected input variable
+    color = "#FFFFFF",  # Border color of polygons
+    opacity = 1,  # Border opacity of polygons
+    fillOpacity = 0.8,  # Fill opacity of polygons
+    highlight = highlightOptions(
+      weight = 2,  # Border weight of highlighted polygons
+      color = "#666666",  # Border color of highlighted polygons
+      fillOpacity = 0.8  # Fill opacity of highlighted polygons
+    ),
+    label = ~Especialidad,  # Labels of the polygons
+    group = "Media Tiempo Días"  # Group name for layer control
+  ) %>%
+  addLegend(
+    position = "bottomright",  # Legend position
+    pal = colorNumeric(
+      palette = "Blues",  # Color palette for the legend
+      domain = dmap[[input$variable_plot]]  # Range of values for the legend
+    ),
+    values = dmap[[input$variable_plot]],  # Values to display in the legend
+    title = input$variable_plot  # Title of the legend based on the selected input variable
+  )
+
       } else if (input$dataset_plot == "Indicadores de área") {
-        df <- dfindicadores()
-      } else if (input$dataset_plot == "Hospitales") {
-        df <- dfhospitales()
-      }
-      
-      ggplot(data = df, aes(x = !!sym(input$variable_plot))) +
-        geom_histogram() +
-        labs(x = input$variable_plot, y = "Count")
-    }
+        datos <- dfindicadores()
+          dmap <- zonas |> 
+  full_join(datos,
+            by = c("DESBDT" = "nombre_area")) 
+
+qpal <- colorQuantile("Blues",  dmap[[input$variable_plot]], n = 4)  
+
+
+leaflet(data = dmap) %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = ~colorNumeric(
+      palette = "Blues",  # Color palette for the polygons
+      domain = dmap[[input$variable_plot]]
+    )(dmap[[input$variable_plot]]),  # Color polygons based on selected input variable
+    color = "#FFFFFF",  # Border color of polygons
+    opacity = 1,  # Border opacity of polygons
+    fillOpacity = 0.8,  # Fill opacity of polygons
+    highlight = highlightOptions(
+      weight = 2,  # Border weight of highlighted polygons
+      color = "#666666",  # Border color of highlighted polygons
+      fillOpacity = 0.8  # Fill opacity of highlighted polygons
+    ),
+    label = "indicador",  # Labels of the polygons
+    group = "Media Tiempo Días"  # Group name for layer control
+  ) %>%
+  addLegend(
+    position = "bottomright",  # Legend position
+    pal = colorNumeric(
+      palette = "Blues",  # Color palette for the legend
+      domain = dmap[[input$variable_plot]]  # Range of values for the legend
+    ),
+    values = dmap[[input$variable_plot]],  # Values to display in the legend
+    title = input$variable_plot  # Title of the legend based on the selected input variable
+  )
+
+
+      } 
+
+  
   })
-
-
-output$grouped_time_series_plot <- renderPlot({
-  if (!is.null(input$group_variable) && !is.null(input$numeric_variable)) {
-    if (input$categorical_value == "TODAS") {
-      plot_data <- aggregate(dfhistorico()[, input$numeric_variable],
-                             by = list(dfhistorico()[[input$group_variable]]),
-                             FUN = function(x) c(Sum = sum(x), Mean = mean(x)))
-      plot(plot_data[, input$numeric_variable], type = "n", main = "Grouped Time Series Plot")
-      for (i in 1:nrow(plot_data)) {
-        lines(plot_data[i, 2:length(plot_data)], col = i)
-      }
-      legend("topright", legend = plot_data[, 1], col = 1:nrow(plot_data), lty = 1)
-    } else {
-      subset_data <- dfhistorico()[dfhistorico()[[input$categorical_variable]] == input$categorical_value, ]
-      plot(subset_data$ano + subset_data$semana/52, subset_data[[input$numeric_variable]],
-           xlab = "Year", ylab = "Numeric Variable", main = "Time Series Plot")
-    }
-  }
-})
 
 }
 
