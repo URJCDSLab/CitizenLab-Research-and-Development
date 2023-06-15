@@ -1,3 +1,3 @@
 variable,tipo,valor,min,max,control,nombre,etiqueta,descripcion,instrucciones
-NCLUS,character,8,2,10,numericInput,N.Clusters,Número de Clusters,Número de Clusters que se crearán en el paso de creación de clusters.,Valores enteros
+NCLUS,character,4,2,10,numericInput,N.Clusters,Número de Clusters,Número de Clusters que se crearán en el paso de creación de clusters.,Valores enteros
 KRIG_OBJ,character,turismo,NA,NA,selectInput,Objetivo,Sector objetivo,"Sector objetivo para la búsqueda de oportunidades(Turismo, Hostelería, Comercio.",Seleccionar entre los nivels de grupo en data frame valoraciones

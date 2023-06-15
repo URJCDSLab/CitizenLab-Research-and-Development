@@ -37,18 +37,22 @@ ui <- function(request) {
     useShinydashboard(),
     useWaiter(),
     
-    titlePanel(title = "Proyección - CitizenLab CU 25"),
+    titlePanel(title = "Proyección - CitizenLab CU 45"),
     
     fluidRow(
       column(2,
+             uiOutput("uinclus"),  
              uiOutput("uinanyos"),             
-             uiOutput("uimuni")
+             uiOutput("uimuni"),             
+             uiOutput("uiccaa")
       ),
       column(10,
           leafletOutput("plot_data") |>
             withSpinner(4),
           DT::dataTableOutput("table_data") |>
-            withSpinner(7)
+            withSpinner(7),
+           plotlyOutput("points") |> 
+             withSpinner(2, color.background = COL1)
       )
     )
   )
@@ -121,16 +125,86 @@ server <- function(input, output, session) {
     read_csv(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"), 
              show_col_types = FALSE)
   })
-  dfclusters <- reactive({
-    read_csv(paste0(carpetas()$carpeta_salida, "/cluster_anyos.csv"), 
-             show_col_types = FALSE)
+  dfclusters <- reactive({  
+    receptor <- dfreceptor()
+    interno_prov <- dfprovincias()
+    interno_muni <- dfmunicipios()
+    valoraciones <- dfvaloraciones()
+
+    turistas_origen_mes <- 
+      receptor |> 
+      filter(pais_orig == "Total") |> 
+      select(mes, CMUN, mun_dest, turistas) |> 
+      mutate(receptor = turistas) |> 
+      select(-turistas) |> 
+      inner_join(
+        interno_prov |> 
+          filter(!is.na(total_ccaa),
+                 is.na(provincia)) |> 
+          select(mes, cmun, total_ccaa, turistas) |> 
+          pivot_wider(names_from = total_ccaa, 
+                      values_from = turistas,
+                      values_fn = ~sum(.x, na.rm = TRUE)),
+        by = c("CMUN" = "cmun", "mes" = "mes"))
+    
+    val <- valoraciones |> 
+      group_by(CMUN, grupo) |> 
+      summarise(puntos = median(puntos, na.rm = TRUE),.groups = "drop") |> 
+      pivot_wider(names_from = grupo,
+                  values_from = puntos) |> 
+      mutate(across(2:4, ~replace_na(.x, median(.x, na.rm = TRUE))))
+    
+    kdata <- turistas_origen_mes |> 
+      inner_join(val, by = "CMUN") |> 
+      # select(-municipio_destino) |> 
+      mutate(anyo = str_sub(mes, 1, 4)) |> 
+      group_by(anyo, mun_dest) |> 
+      summarise(across(3:(ncol(turistas_origen_mes) - 1), sum),
+                across((ncol(turistas_origen_mes) - 1):(ncol(turistas_origen_mes) + 2), median))
+    
+    by_anyo <- split(kdata, kdata$anyo)
+    
+    by_anyo[[1]] |> 
+      column_to_rownames("mun_dest") |> 
+      select(-anyo) |> 
+      kmeans(10)
+    
+    
+    ## PARÁMETRO DEL PASO 2
+    NCLUS <- 4
+    
+    cluster_anyos <- map(by_anyo, function(x)  {
+      m <- x |> 
+        column_to_rownames("mun_dest") |> 
+        select(-anyo) |> 
+        kmeans(NCLUS)
+      res <- x |> 
+        mutate(cluster = m$cluster)
+    }) |> bind_rows() |> 
+      ungroup()
+    
+    write_csv(cluster_anyos, paste0(carpetas()$carpeta_salida, "/cluster_anyos.csv"))
+    return(cluster_anyos)
   })
 
-
+  output$uinclus <- renderUI({
+    NCLUS <- dfvariables() |> 
+                     filter(variable == "NCLUS") |> 
+                     pull(valor)
+    numericInput(
+      inputId = "nclus",
+      label = "Número de Clusters",
+      value = NCLUS,
+      min = 2,
+      max = 10
+    )
+  })
+    
   output$uinanyos <- renderUI({
+      message("UINANYOS")
       clusters <- dfclusters()
       selectInput("nanyos", "Años",
-                  choices = unique(clusters$anyo), multiple = TRUE,
+                  choices = unique(clusters$anyo), 
                   selected = unique(clusters$anyo)[1])
   })
   output$uimuni <- renderUI({
@@ -138,6 +212,16 @@ server <- function(input, output, session) {
       selectInput("muni", "Municipio",
                   choices = unique(clusters$mun_dest), multiple = TRUE,
                   selected = unique(clusters$mun_dest)[1])
+  })
+  output$uiccaa <- renderUI({
+      selectInput("ccaa", "Comunidad Autonoma origen",
+                  choices = c("Andalucía", "Aragón", "Asturias, Principado de", 
+                         "Balears, Illes", "Canarias", "Cantabria", 
+                         "Castilla - La Mancha", "Castilla y León", "Cataluña", 
+                         "Ceuta", "Comunitat Valenciana", "Extremadura", "Galicia", 
+                         "Madrid, Comunidad de", "Melilla", "Murcia, Región de", 
+                         "Navarra, Comunidad Foral de", "País Vasco", "Rioja, La"),
+                  selected = "Andalucía")
   })
 
   output$plot_data <- renderLeaflet({
@@ -181,23 +265,35 @@ server <- function(input, output, session) {
   })
   
 
+  output$points <- renderPlotly({
+    req(input$nanyos, input$ccaa, dfclusters())
+    clusters <- dfclusters() 
+    p <- ggplot(clusters, aes(x = clusters[[input$ccaa]], y = receptor, colour = cluster)) +
+            geom_point() +
+            labs(x = "CCAA", y = "Receptor", colour = "Cluster", title = "Dispersion plot of CCAA and Receptor colored by Cluster") +
+            theme_minimal()
+    return(ggplotly(p))
+  })
+
   observeEvent(input$abguardar, {
 
 
     ## Copiar resto input a output para siguientes pasos
-    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_03_areasgeo.json"),
-              paste0(carpetas()$carpeta_salida, "/CU_25_05_03_areasgeo.json"))
-    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_05_01_hospitales.csv"),
-              paste0(carpetas()$carpeta_salida, "/CU_25_05_05_01_hospitales.csv"))
-    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_06_indicadores_area.csv"),
-              paste0(carpetas()$carpeta_salida, "/CU_25_05_06_indicadores_area.csv"))
-    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_07_01_capacidad.csv"),
-          paste0(carpetas()$carpeta_salida, "/CU_25_05_07_01_capacidad.csv"))
-    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_07_02_lista_espera.csv"),
-          paste0(carpetas()$carpeta_salida, "/CU_25_05_07_02_lista_espera.csv"))
-        file.copy(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"),
-          paste0(carpetas()$carpeta_salida, "/VARIABLES.csv"))
 
+    file.copy(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"),
+              paste0(carpetas()$carpeta_salida, "/VARIABLES.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_45_05_02_valoracion_sim.json"),
+              paste0(carpetas()$carpeta_salida, "/CU_45_05_02_valoracion_sim.json"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_45_05_01_municipios_geo.json"),
+              paste0(carpetas()$carpeta_salida, "/CU_45_05_01_municipios_geo.json"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_45_05_04_interno_prov.csv"),
+              paste0(carpetas()$carpeta_salida, "/CU_45_05_04_interno_prov.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_45_05_05_interno_mun.csv"),
+              paste0(carpetas()$carpeta_salida, "/CU_45_05_05_interno_mun.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_45_05_03_receptor.csv"),
+              paste0(carpetas()$carpeta_salida, "/CU_45_05_03_receptor.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/ESCENARIO_REG.csv"),
+              paste0(carpetas()$carpeta_salida, "/ESCENARIO_REG.csv"))
     
 
     sendSweetAlert(

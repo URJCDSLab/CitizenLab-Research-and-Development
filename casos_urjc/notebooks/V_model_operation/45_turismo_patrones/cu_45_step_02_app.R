@@ -1,5 +1,5 @@
 ########
-# APP PASO 2 (PARÁMETROS DE USUARIO) CU 04 (GESTIÓN VACUNAS GRIPE)
+# APP PASO 2 (PARÁMETROS DE USUARIO) CU 45 (GESTIÓN VACUNAS GRIPE)
 ########
 
 ## Paquetes ----
@@ -13,6 +13,10 @@ library(bslib, warn.conflicts = FALSE)
 library(sf)
 library(readr)
 library(dplyr, warn.conflicts = FALSE)
+library(stringr)
+library(purrr)
+library(tibble)
+library(tidyr)
 
 
 ui <- function(request){
@@ -21,13 +25,21 @@ ui <- function(request){
     titlePanel(title = "Parámetros de usuario - CitizenLab CU 45"),
     fluidRow(
       column(2,
-             uiOutput("uinclus"),
+             uiOutput("uinclus")
+      ),
+        
+      column(2,
+             uiOutput("uikrieg")
       )
       
     ),
     fluidRow(
       column(2,
              textOutput("textnclus")
+      ),
+        
+      column(2,
+             textOutput("textkrieg")
       )
       
     ),
@@ -102,8 +114,8 @@ server <- function(input, output, session) {
     ## Guardar variables en output
     VARIABLES <- dfvariables()
     VARIABLES$valor[VARIABLES$variable == "NCLUS"] <- input$nclus
-
-
+    VARIABLES$valor[VARIABLES$variable == "KRIG_OBJ"] <- input$krieg
+      
     write_csv(VARIABLES, paste0(carpetas()$carpeta_salida, "/VARIABLES.csv"))
 
     file.copy(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"),
@@ -118,6 +130,8 @@ server <- function(input, output, session) {
               paste0(carpetas()$carpeta_salida, "/CU_45_05_05_interno_mun.csv"))
     file.copy(paste0(carpetas()$carpeta_entrada, "/CU_45_05_03_receptor.csv"),
               paste0(carpetas()$carpeta_salida, "/CU_45_05_03_receptor.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/ESCENARIO_REG.csv"),
+              paste0(carpetas()$carpeta_salida, "/ESCENARIO_REG.csv"))
 
     sendSweetAlert(
       session = session,
@@ -141,9 +155,20 @@ server <- function(input, output, session) {
       max = 10
     )
   })
+  output$uikrieg <- renderUI({
+    selectInput(
+      inputId = "krieg",
+      label = "Sector objetivo",
+      choices = c("turismo", "hosteleria", "comercio")
+    )
+  })
 
   output$textnclus <- renderText({
     dfvariables() |> filter(variable == "NCLUS") |> pull(descripcion)
+  })
+
+  output$textkrieg <- renderText({
+    dfvariables() |> filter(variable == "KRIG_OBJ") |> pull(descripcion)
   })
 
 }

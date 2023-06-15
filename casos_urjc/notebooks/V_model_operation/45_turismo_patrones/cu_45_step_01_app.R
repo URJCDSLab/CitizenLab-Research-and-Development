@@ -309,6 +309,8 @@ server <- function(input, output, session) {
               paste0(carpetas()$carpeta_salida, "/CU_45_05_05_interno_mun.csv"))
     file.copy(paste0(carpetas()$carpeta_entrada, "/CU_45_05_03_receptor.csv"),
               paste0(carpetas()$carpeta_salida, "/CU_45_05_03_receptor.csv"))
+    file.copy(paste0(carpetas()$carpeta_entrada, "/ESCENARIO_REG.csv"),
+              paste0(carpetas()$carpeta_salida, "/ESCENARIO_REG.csv"))
     sendSweetAlert(
         session = session,
         title = "¡¡ Éxito !!",
