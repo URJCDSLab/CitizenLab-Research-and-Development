@@ -61,7 +61,7 @@ server <- function(input, output, session) {
 
   ## . carpetas ----
   carpetas <- reactive({
-    
+    message("AQU")
     carpeta_entrada <- getQueryString()$carpeta_entrada
     if(any(is.null(carpeta_entrada))){
       confirmSweetAlert(

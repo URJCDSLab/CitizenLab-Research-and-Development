@@ -2,9 +2,7 @@
 # APP PASO 4 (PROYECCIÓN)
 ########
 
-library(shiny)
-library(modeltime)
-## UI
+# List of libraries to be checked and installed if necessary
 library(bslib, warn.conflicts = FALSE)
 library(shinycssloaders)
 library(shinydashboard, warn.conflicts = FALSE)
@@ -15,13 +13,9 @@ library(plotly, warn.conflicts = FALSE)
 library(gratia)
 library(leaflet)
 library(waiter)
-library(xgboost)
-library(prophet)
-library(tidymodels)
-library(modeltime)
-library(timetk)   
-library(lubridate)
-library(tidyverse)
+library(stringr)
+
+
 ## Server
 library(readr)
 library(mgcv)
@@ -29,6 +23,8 @@ library(dplyr, warn.conflicts = FALSE)
 library(sf)
 library(lubridate, warn.conflicts = FALSE)
 library(tidyr)
+library(purrr)
+library(tibble)
 
 ## Config
 
@@ -42,54 +38,31 @@ ui <- function(request) {
     useWaiter(),
     
     titlePanel(title = "Proyección - CitizenLab CU 25"),
-
-    # ... Otros elementos de la UI
     
     fluidRow(
-          # fluidRow(
-    h3("Guardar datos para el siguiente paso"),
-    actionBttn("abguardar",
-               "Guardar datos",
-               size = "md",
-               icon = icon("floppy-disk")),
-    br(),br(),
-      column(width = 6,
-             uiOutput("uihorizonte")
+      column(2,
+             uiOutput("uinanyos"),             
+             uiOutput("uimuni")
       ),
-      column(width = 6,
-             uiOutput("uiespecialidad")
-      ),
-      column(width = 6,
-             uiOutput("uizona")
-      ),
-      column(width = 6,
-             uiOutput("uiparametro")
-      ),
-        column(width = 12,
-         plotlyOutput("serieTemporalPlot")
-         
-  ),
-          column(width = 12,
-         tableOutput("tabla_preds")
-          )
+      column(10,
+          leafletOutput("plot_data") |>
+            withSpinner(4),
+          DT::dataTableOutput("table_data") |>
+            withSpinner(7)
+      )
     )
   )
 }
 
 
 server <- function(input, output, session) {
-  
-
-  
   ## . carpetas ----
   carpetas <- reactive({
-    
+    message("AQUI")
     carpeta_entrada <- getQueryString()$carpeta_entrada
     carpeta_salida <- getQueryString()$carpeta_salida
-    carpeta_maestros <- getQueryString()$carpeta_maestros
     if(any(is.null(carpeta_entrada), 
-           is.null(carpeta_salida), 
-           is.null(carpeta_maestros))){
+           is.null(carpeta_salida))){
       confirmSweetAlert(
         session = session,
         inputId = "error_carpetas_faltan",
@@ -102,8 +75,7 @@ server <- function(input, output, session) {
       warning("Revise la url, alguna carpeta requerida en el caso no se ha especificado (carpeta_entrada, carpeta_salida, carpeta_maestros).")
       invisible(NULL)
     } else if(!all(file.exists(carpeta_entrada), 
-                   file.exists(carpeta_salida), 
-                   file.exists(carpeta_maestros))){
+                   file.exists(carpeta_salida))){
       confirmSweetAlert(
         session = session,
         inputId = "error_carpetas_existen",
@@ -116,372 +88,100 @@ server <- function(input, output, session) {
       warning("Revise la url, alguna carpeta requerida en el caso no existe.")
       invisible(NULL)
     } else{
-      return(invisible(list(carpeta_entrada = carpeta_entrada, 
-                            carpeta_salida = carpeta_salida, 
-                            carpeta_maestros = carpeta_maestros)))
-    }
-  })
   
     # Resto del código del servidor...
+      warning("CARGANDO")
   
-  dfhistorico <- reactive({
-    read_csv(paste0(carpetas()$carpeta_entrada, "/CU_25_05_07_02_lista_espera.csv"), 
+      
+      return(invisible(list(carpeta_entrada = carpeta_entrada, carpeta_salida = carpeta_salida)))
+    }
+  })
+  dfvaloraciones <- reactive({
+    read_csv(paste0(carpetas()$carpeta_entrada, "/CU_45_05_02_valoracion_sim.csv"), 
              show_col_types = FALSE)
   })
 
-    dfhospitales <- reactive({
-    read_csv(paste0(carpetas()$carpeta_entrada, "/CU_25_05_05_01_hospitales.csv"), 
+  dfreceptor <- reactive({
+    read_csv(paste0(carpetas()$carpeta_entrada, "/CU_45_05_03_receptor.csv"), 
              show_col_types = FALSE)
   })
 
-      dfcapacidad <- reactive({
-    read_csv(paste0(carpetas()$carpeta_entrada, "/CU_25_05_07_01_capacidad.csv"), 
+  ## Read capacity data
+  dfmunicipios <- reactive({
+    read_csv(paste0(carpetas()$carpeta_entrada, "/CU_45_05_05_interno_mun.csv"), 
              show_col_types = FALSE)
   })
-
-      dfindicadores <- reactive({
-    read_csv(paste0(carpetas()$carpeta_entrada, "/CU_25_05_06_indicadores_area.csv"), 
+  
+  ## Read area indicators data
+  dfprovincias <- reactive({
+    read_csv(paste0(carpetas()$carpeta_entrada, "/CU_45_05_04_interno_prov.csv"), 
              show_col_types = FALSE)
   })
-
-    dfvariables <- reactive({
+  dfvariables <- reactive({
     read_csv(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"), 
              show_col_types = FALSE)
   })
-  
-  # Cargar modelos Prophet/XGBoost
-
-  modelos_xgboost <- reactive({
-    read_rds(paste0(carpetas()$carpeta_maestros, 
-                    "/modelos_tiempo_xgboost.rds"))
-  })
-
-  
-  output$uihorizonte <- renderUI({
-  selectInput(
-    inputId = "horizonte",
-    label = "Horizonte temporal (semanas)",
-    choices = seq(1, 52),
-    selected = dfvariables()$valor[dfvariables()$variable == "HORIZONTE"]
-  )
-})
-
-  output$uizona <- renderUI({
-  selectInput(
-    inputId = "zona",
-    label = "Zona",
-    choices = c("Centro-Norte","Centro-Oeste","Este","Norte","Oeste","Sur I","Sur Ii","Sur-Este","Sur-Oeste I","Sur-Oeste Ii"),
-    selected = "Centro-Norte"
-  )
-})
-
-  output$uiespecialidad <- renderUI({
-    selectInput(
-      inputId = "especialidad",
-      label = "Especialidad",
-      choices = unique(dfhistorico()$Especialidad),
-      selected = "Angiología y Cirugía Vascular"
-    )
-  })
-  
-
-  output$uiparametro <- renderUI({
-    selectInput(
-      inputId = "parametro",
-      label = "Parámetro a predecir",
-      choices = c("media_tiempo_dias"),
-      selected = "media_tiempo_dias"
-    )
+  dfclusters <- reactive({
+    read_csv(paste0(carpetas()$carpeta_salida, "/cluster_anyos.csv"), 
+             show_col_types = FALSE)
   })
 
 
+  output$uinanyos <- renderUI({
+      clusters <- dfclusters()
+      selectInput("nanyos", "Años",
+                  choices = unique(clusters$anyo), multiple = TRUE,
+                  selected = unique(clusters$anyo)[1])
+  })
+  output$uimuni <- renderUI({
+      clusters <- dfclusters()
+      selectInput("muni", "Municipio",
+                  choices = unique(clusters$mun_dest), multiple = TRUE,
+                  selected = unique(clusters$mun_dest)[1])
+  })
 
-  output$serieTemporalPlot <- renderPlotly({
+  output$plot_data <- renderLeaflet({
+    if (!is.null(input$nanyos)) {
+        clusters <- dfclusters() |> 
+                     filter(anyo == input$nanyos)
+        datageo <- st_read(paste0(carpetas()$carpeta_entrada, "/CU_45_05_01_municipios_geo.json"))
+        clusters <- clusters |>
+            full_join(datageo, by = c("mun_dest" = "name"))
+        pal <- colorFactor(palette = "viridis", domain = unique(clusters$cluster))
+        map <- sf::st_as_sf(clusters) |> 
+            leaflet() |> 
+            addTiles() |> 
+            addPolygons(color = ~pal(cluster),  # fillColor depends on pais_orig
+                    weight = 1,
+                    smoothFactor = 0.5,
+                    fillOpacity = 1,
+                    highlightOptions = highlightOptions(color = "white", weight = 2,
+                                                        bringToFront = TRUE),
+                    label = ~paste0("Cluster: ", cluster)) |> 
+            addLegend("bottomright", 
+                      pal = pal, 
+                      values = ~cluster,  # Changed from valor to pais_orig
+                      title = "Cluster",
+                      labFormat = labelFormat(big.mark = " "),
+                      opacity = 1
+            )
+        return(map)
+    }
+  })
 
-  indicadores <- dfindicadores()
-  capacidad <- dfcapacidad()
-  lista <- dfhistorico()
-  hospitales <- dfhospitales()
-
-lista <- lista |> 
-  mutate(fecha = as.Date(parse_date_time(paste(ano, semana, 1, sep="/"),'Y/W/w')))
-
-h <- "HOSPITAL UNIVERSITARIO LA PAZ"
-a <- "05"
-e <- "Angiología y Cirugía Vascular"
-
-## Valores perdidos: fill (solo hay una semana)
-
-lzona_esp_1 <- lista |> 
-  left_join(hospitales) |> 
-  filter(Especialidad == e,
-         id_area == a) |> 
-  fill(total_pacientes, media_tiempo_dias) |> 
-  group_by(nombre_area, Especialidad, fecha) |> 
-  summarise(total_pacientes = sum(total_pacientes, na.rm = TRUE),
-            media_tiempo_dias = mean(media_tiempo_dias, na.rm = TRUE)) 
-
-lzona_esp_1 |> plot_time_series(fecha, total_pacientes)
-
-## XBGoost con series temporales
-
-## División conjuntos de datos
-splits <- lzona_esp_1 %>%
-  time_series_split(assess = "3 months", cumulative = TRUE)
-
-## Visualización
-splits %>%
-  tk_time_series_cv_plan() %>%
-  plot_time_series_cv_plan(fecha, total_pacientes, .interactive = FALSE)
-
-## Tidymodels workflow
-
-recipe_spec <- recipe(total_pacientes ~ fecha, training(splits)) %>%
-  step_timeseries_signature(fecha) %>%
-  step_rm(
-    # contains("am.pm"), contains("hour"), contains("minute"),
-    #       contains("second"),
-    contains("week"),
-    contains("xts")) %>%
-  step_fourier(fecha, period = 365, K = 5) %>%
-  step_dummy(all_nominal())  |>
-  step_zv()
-
-recipe_spec %>% prep() %>% juice()
-
-model_spec_glmnet <- linear_reg(penalty = 0.01, mixture = 0.5) %>%
-  set_engine("glmnet")
-
-workflow_fit_glmnet <- workflow() %>%
-  add_model(model_spec_glmnet) %>%
-  add_recipe(recipe_spec %>% step_rm(fecha)) %>%
-  fit(training(splits))
-
-
-model_spec_prophet_boost <- prophet_boost(seasonality_yearly = TRUE,
-                                          seasonality_weekly = TRUE,
-                                          seasonality_daily = TRUE) %>%
-  set_engine("prophet_xgboost") 
-
-workflow_fit_prophet_boost <- workflow() %>%
-  add_model(model_spec_prophet_boost) %>%
-  add_recipe(recipe_spec) %>%
-  fit(training(splits))
-
-workflow_fit_prophet_boost
-
-model_table <- modeltime_table(
-  # model_fit_arima, 
-  # model_fit_prophet,
-  workflow_fit_glmnet,
-  # workflow_fit_rf,
-  workflow_fit_prophet_boost
-) 
-model_table
-
-calibration_table <- model_table %>%
-  modeltime_calibrate(testing(splits))
-
-calibration_table
-
-calibration_table %>%
-  modeltime_forecast(actual_data = lzona_esp_1) %>%
-  plot_modeltime_forecast(.interactive = FALSE)
-
-calibration_table %>%
-  modeltime_accuracy() %>%
-  table_modeltime_accuracy(.interactive = FALSE)
-
-
-## Refit and forecast
-calibration_table |> 
-  filter(.model_id == 2) |> 
-  modeltime_refit(lzona_esp_1) %>%
-  modeltime_forecast(h = "8 weeks", actual_data = lzona_esp_1) %>%
-  plot_modeltime_forecast(.interactive = FALSE)
-
-
-
-
-
-
-## Ajustar todos los modelos a lo bestia
-
-lzona_esp <- lista |> 
-  left_join(hospitales) |> 
-  # filter(Especialidad == e,
-  #        id_area == a) |> 
-  fill(total_pacientes, media_tiempo_dias) |> 
-  group_by(nombre_area, Especialidad, fecha) |> 
-  summarise(total_pacientes = sum(total_pacientes, na.rm = TRUE),
-            media_tiempo_dias = mean(media_tiempo_dias, na.rm = TRUE)) 
-
-dfs <- split(lzona_esp, ~nombre_area + Especialidad)
-
-res_tiempo <- modelos_xgboost()
-
-
-  a <- paste0(input$zona,".",input$especialidad)
-  h = as.integer(input$horizonte)
-
-  print(a)
-  print(h)
-  print(res_tiempo[[a]])
-  ## Predicción
-  prediccion <- res_tiempo[[a]] |>
-    modeltime_forecast(h = h , actual_data = dfs[[a]])
-  print(prediccion)
-  print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-  ## Visualización
-  dfs[[a]] |> 
-    plot_time_series(fecha, total_pacientes)
-  prediccion |> plot_modeltime_forecast()
-  # write_csv(prediccion, paste0(carpetas()$carpeta_salida, "/PREDICCIONES.csv"))
-
-
+  output$table_data <- DT::renderDataTable({
+    if (!is.null(input$muni)) {
+        clusters <- dfclusters() |> 
+                     filter(anyo %in% input$nanyos) |> 
+                     filter(mun_dest %in% input$muni)
+        clusters <- t(clusters)
+        colnames(clusters) <- clusters[2, ]
+        return(clusters)
+    }
   })
   
 
-
-
-    output$tabla_preds <- renderTable({
-
-  indicadores <- dfindicadores()
-  capacidad <- dfcapacidad()
-  lista <- dfhistorico()
-  hospitales <- dfhospitales()
-
-lista <- lista |> 
-  mutate(fecha = as.Date(parse_date_time(paste(ano, semana, 1, sep="/"),'Y/W/w')))
-
-h <- "HOSPITAL UNIVERSITARIO LA PAZ"
-a <- "05"
-e <- "Angiología y Cirugía Vascular"
-
-## Valores perdidos: fill (solo hay una semana)
-
-lzona_esp_1 <- lista |> 
-  left_join(hospitales) |> 
-  filter(Especialidad == e,
-         id_area == a) |> 
-  fill(total_pacientes, media_tiempo_dias) |> 
-  group_by(nombre_area, Especialidad, fecha) |> 
-  summarise(total_pacientes = sum(total_pacientes, na.rm = TRUE),
-            media_tiempo_dias = mean(media_tiempo_dias, na.rm = TRUE)) 
-
-lzona_esp_1 |> plot_time_series(fecha, total_pacientes)
-
-## XBGoost con series temporales
-
-## División conjuntos de datos
-splits <- lzona_esp_1 %>%
-  time_series_split(assess = "3 months", cumulative = TRUE)
-
-## Visualización
-splits %>%
-  tk_time_series_cv_plan() %>%
-  plot_time_series_cv_plan(fecha, total_pacientes, .interactive = FALSE)
-
-## Tidymodels workflow
-
-recipe_spec <- recipe(total_pacientes ~ fecha, training(splits)) %>%
-  step_timeseries_signature(fecha) %>%
-  step_rm(
-    # contains("am.pm"), contains("hour"), contains("minute"),
-    #       contains("second"),
-    contains("week"),
-    contains("xts")) %>%
-  step_fourier(fecha, period = 365, K = 5) %>%
-  step_dummy(all_nominal())  |>
-  step_zv()
-
-recipe_spec %>% prep() %>% juice()
-
-model_spec_glmnet <- linear_reg(penalty = 0.01, mixture = 0.5) %>%
-  set_engine("glmnet")
-
-workflow_fit_glmnet <- workflow() %>%
-  add_model(model_spec_glmnet) %>%
-  add_recipe(recipe_spec %>% step_rm(fecha)) %>%
-  fit(training(splits))
-
-
-model_spec_prophet_boost <- prophet_boost(seasonality_yearly = TRUE,
-                                          seasonality_weekly = TRUE,
-                                          seasonality_daily = TRUE) %>%
-  set_engine("prophet_xgboost") 
-
-workflow_fit_prophet_boost <- workflow() %>%
-  add_model(model_spec_prophet_boost) %>%
-  add_recipe(recipe_spec) %>%
-  fit(training(splits))
-
-workflow_fit_prophet_boost
-
-model_table <- modeltime_table(
-  # model_fit_arima, 
-  # model_fit_prophet,
-  workflow_fit_glmnet,
-  # workflow_fit_rf,
-  workflow_fit_prophet_boost
-) 
-model_table
-
-calibration_table <- model_table %>%
-  modeltime_calibrate(testing(splits))
-
-calibration_table
-
-calibration_table %>%
-  modeltime_forecast(actual_data = lzona_esp_1) %>%
-  plot_modeltime_forecast(.interactive = FALSE)
-
-calibration_table %>%
-  modeltime_accuracy() %>%
-  table_modeltime_accuracy(.interactive = FALSE)
-
-
-## Refit and forecast
-calibration_table |> 
-  filter(.model_id == 2) |> 
-  modeltime_refit(lzona_esp_1) %>%
-  modeltime_forecast(h = "8 weeks", actual_data = lzona_esp_1) %>%
-  plot_modeltime_forecast(.interactive = FALSE)
-
-
-
-
-
-
-## Ajustar todos los modelos a lo bestia
-
-lzona_esp <- lista |> 
-  left_join(hospitales) |> 
-  # filter(Especialidad == e,
-  #        id_area == a) |> 
-  fill(total_pacientes, media_tiempo_dias) |> 
-  group_by(nombre_area, Especialidad, fecha) |> 
-  summarise(total_pacientes = sum(total_pacientes, na.rm = TRUE),
-            media_tiempo_dias = mean(media_tiempo_dias, na.rm = TRUE)) 
-
-dfs <- split(lzona_esp, ~nombre_area + Especialidad)
-
-res_tiempo <- modelos_xgboost()
-
-
-  a <- paste0(input$zona,".",input$especialidad)
-  h = as.integer(input$horizonte)
-
-  print(a)
-  print(h)
-  print(res_tiempo[[a]])
-  ## Predicción
-  prediccion <- res_tiempo[[a]] |>
-    modeltime_forecast(h = h , actual_data = dfs[[a]])
-  })
-  
-
-    observeEvent(input$abguardar, {
+  observeEvent(input$abguardar, {
 
 
     ## Copiar resto input a output para siguientes pasos
