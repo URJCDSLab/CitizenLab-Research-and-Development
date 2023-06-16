@@ -37,12 +37,6 @@ ui <- function(request) {
     
     sidebarLayout(
       sidebarPanel(
-        h3("Guardar datos para el siguiente paso"),
-        actionBttn("abguardar",
-                   "Guardar datos",
-                   size = "md",
-                   icon = icon("floppy-disk")),
-        br(), br(),
         conditionalPanel(condition="input.tabselected==1",
         uiOutput("uisemana"),
         uiOutput("uiespecialidad")),                                  
