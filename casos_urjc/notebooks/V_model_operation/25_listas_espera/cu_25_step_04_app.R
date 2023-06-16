@@ -166,6 +166,12 @@ server <- function(input, output, session) {
                     "/modelos_tiempo_xgboost.rds"))
   })
 
+    modelos_xgboost_pacientes <- reactive({
+    read_rds(paste0(carpetas()$carpeta_maestros, 
+                    "/modelos_pacientes_xgboost.rds"))
+  })
+
+
   
   output$uihorizonte <- renderUI({
   selectInput(
@@ -199,7 +205,7 @@ server <- function(input, output, session) {
     selectInput(
       inputId = "parametro",
       label = "Parámetro a predecir",
-      choices = c("media_tiempo_dias"),
+      choices = c("media_tiempo_dias","total_pacientes"),
       selected = "media_tiempo_dias"
     )
   })
@@ -212,125 +218,10 @@ server <- function(input, output, session) {
   capacidad <- dfcapacidad()
   lista <- dfhistorico()
   hospitales <- dfhospitales()
-
-lista <- lista |> 
-  mutate(fecha = as.Date(parse_date_time(paste(ano, semana, 1, sep="/"),'Y/W/w')))
-
-h <- "HOSPITAL UNIVERSITARIO LA PAZ"
-a <- "05"
-e <- "Angiología y Cirugía Vascular"
-
-## Valores perdidos: fill (solo hay una semana)
-
-lzona_esp_1 <- lista |> 
-  left_join(hospitales) |> 
-  filter(Especialidad == e,
-         id_area == a) |> 
-  fill(total_pacientes, media_tiempo_dias) |> 
-  group_by(nombre_area, Especialidad, fecha) |> 
-  summarise(total_pacientes = sum(total_pacientes, na.rm = TRUE),
-            media_tiempo_dias = mean(media_tiempo_dias, na.rm = TRUE)) 
-
-lzona_esp_1 |> plot_time_series(fecha, total_pacientes)
-
-## XBGoost con series temporales
-
-## División conjuntos de datos
-splits <- lzona_esp_1 %>%
-  time_series_split(assess = "3 months", cumulative = TRUE)
-
-## Visualización
-splits %>%
-  tk_time_series_cv_plan() %>%
-  plot_time_series_cv_plan(fecha, total_pacientes, .interactive = FALSE)
-
-## Tidymodels workflow
-
-recipe_spec <- recipe(total_pacientes ~ fecha, training(splits)) %>%
-  step_timeseries_signature(fecha) %>%
-  step_rm(
-    # contains("am.pm"), contains("hour"), contains("minute"),
-    #       contains("second"),
-    contains("week"),
-    contains("xts")) %>%
-  step_fourier(fecha, period = 365, K = 5) %>%
-  step_dummy(all_nominal())  |>
-  step_zv()
-
-recipe_spec %>% prep() %>% juice()
-
-model_spec_glmnet <- linear_reg(penalty = 0.01, mixture = 0.5) %>%
-  set_engine("glmnet")
-
-workflow_fit_glmnet <- workflow() %>%
-  add_model(model_spec_glmnet) %>%
-  add_recipe(recipe_spec %>% step_rm(fecha)) %>%
-  fit(training(splits))
-
-
-model_spec_prophet_boost <- prophet_boost(seasonality_yearly = TRUE,
-                                          seasonality_weekly = TRUE,
-                                          seasonality_daily = TRUE) %>%
-  set_engine("prophet_xgboost") 
-
-workflow_fit_prophet_boost <- workflow() %>%
-  add_model(model_spec_prophet_boost) %>%
-  add_recipe(recipe_spec) %>%
-  fit(training(splits))
-
-workflow_fit_prophet_boost
-
-model_table <- modeltime_table(
-  # model_fit_arima, 
-  # model_fit_prophet,
-  workflow_fit_glmnet,
-  # workflow_fit_rf,
-  workflow_fit_prophet_boost
-) 
-model_table
-
-calibration_table <- model_table %>%
-  modeltime_calibrate(testing(splits))
-
-calibration_table
-
-calibration_table %>%
-  modeltime_forecast(actual_data = lzona_esp_1) %>%
-  plot_modeltime_forecast(.interactive = FALSE)
-
-calibration_table %>%
-  modeltime_accuracy() %>%
-  table_modeltime_accuracy(.interactive = FALSE)
-
-
-## Refit and forecast
-calibration_table |> 
-  filter(.model_id == 2) |> 
-  modeltime_refit(lzona_esp_1) %>%
-  modeltime_forecast(h = "8 weeks", actual_data = lzona_esp_1) %>%
-  plot_modeltime_forecast(.interactive = FALSE)
-
-
-
-
-
-
-## Ajustar todos los modelos a lo bestia
-
-lzona_esp <- lista |> 
-  left_join(hospitales) |> 
-  # filter(Especialidad == e,
-  #        id_area == a) |> 
-  fill(total_pacientes, media_tiempo_dias) |> 
-  group_by(nombre_area, Especialidad, fecha) |> 
-  summarise(total_pacientes = sum(total_pacientes, na.rm = TRUE),
-            media_tiempo_dias = mean(media_tiempo_dias, na.rm = TRUE)) 
-
-dfs <- split(lzona_esp, ~nombre_area + Especialidad)
-
+  res_pacientes <- modelos_xgboost_pacientes()
 res_tiempo <- modelos_xgboost()
 
-
+  if (input$parametro =="media_tiempo_dias"){
   a <- paste0(input$zona,".",input$especialidad)
   h = as.integer(input$horizonte)
 
@@ -339,19 +230,27 @@ res_tiempo <- modelos_xgboost()
   print(res_tiempo[[a]])
   ## Predicción
   prediccion <- res_tiempo[[a]] |>
-    modeltime_forecast(h = h , actual_data = dfs[[a]])
-  print(prediccion)
-  print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-  ## Visualización
-  dfs[[a]] |> 
-    plot_time_series(fecha, total_pacientes)
-  a_preddicion <- prediccion |> plot_modeltime_forecast()
-  write_csv(a_preddicion, paste0(carpetas()$carpeta_salida, "/PREDICCIONES.csv"))
-  a_preddicion
+    modeltime_forecast(h = h)
+    write_csv(prediccion, paste0(carpetas()$carpeta_salida, "/PREDICCIONES.csv"))
+    prediccion |> plot_modeltime_forecast()  
+  
+  }else{
+      a <- paste0(input$zona,".",input$especialidad)
+  h = as.integer(input$horizonte)
+      prediccion <- res_pacientes[[a]] |>
+    modeltime_forecast(h = h)
+
+    write_csv(prediccion, paste0(carpetas()$carpeta_salida, "/PREDICCIONES.csv"))
+    prediccion |> plot_modeltime_forecast()  
+  }
+
+  
 
 
   })
   
+
+
 
 
 
@@ -361,125 +260,10 @@ res_tiempo <- modelos_xgboost()
   capacidad <- dfcapacidad()
   lista <- dfhistorico()
   hospitales <- dfhospitales()
-
-lista <- lista |> 
-  mutate(fecha = as.Date(parse_date_time(paste(ano, semana, 1, sep="/"),'Y/W/w')))
-
-h <- "HOSPITAL UNIVERSITARIO LA PAZ"
-a <- "05"
-e <- "Angiología y Cirugía Vascular"
-
-## Valores perdidos: fill (solo hay una semana)
-
-lzona_esp_1 <- lista |> 
-  left_join(hospitales) |> 
-  filter(Especialidad == e,
-         id_area == a) |> 
-  fill(total_pacientes, media_tiempo_dias) |> 
-  group_by(nombre_area, Especialidad, fecha) |> 
-  summarise(total_pacientes = sum(total_pacientes, na.rm = TRUE),
-            media_tiempo_dias = mean(media_tiempo_dias, na.rm = TRUE)) 
-
-lzona_esp_1 |> plot_time_series(fecha, total_pacientes)
-
-## XBGoost con series temporales
-
-## División conjuntos de datos
-splits <- lzona_esp_1 %>%
-  time_series_split(assess = "3 months", cumulative = TRUE)
-
-## Visualización
-splits %>%
-  tk_time_series_cv_plan() %>%
-  plot_time_series_cv_plan(fecha, total_pacientes, .interactive = FALSE)
-
-## Tidymodels workflow
-
-recipe_spec <- recipe(total_pacientes ~ fecha, training(splits)) %>%
-  step_timeseries_signature(fecha) %>%
-  step_rm(
-    # contains("am.pm"), contains("hour"), contains("minute"),
-    #       contains("second"),
-    contains("week"),
-    contains("xts")) %>%
-  step_fourier(fecha, period = 365, K = 5) %>%
-  step_dummy(all_nominal())  |>
-  step_zv()
-
-recipe_spec %>% prep() %>% juice()
-
-model_spec_glmnet <- linear_reg(penalty = 0.01, mixture = 0.5) %>%
-  set_engine("glmnet")
-
-workflow_fit_glmnet <- workflow() %>%
-  add_model(model_spec_glmnet) %>%
-  add_recipe(recipe_spec %>% step_rm(fecha)) %>%
-  fit(training(splits))
-
-
-model_spec_prophet_boost <- prophet_boost(seasonality_yearly = TRUE,
-                                          seasonality_weekly = TRUE,
-                                          seasonality_daily = TRUE) %>%
-  set_engine("prophet_xgboost") 
-
-workflow_fit_prophet_boost <- workflow() %>%
-  add_model(model_spec_prophet_boost) %>%
-  add_recipe(recipe_spec) %>%
-  fit(training(splits))
-
-workflow_fit_prophet_boost
-
-model_table <- modeltime_table(
-  # model_fit_arima, 
-  # model_fit_prophet,
-  workflow_fit_glmnet,
-  # workflow_fit_rf,
-  workflow_fit_prophet_boost
-) 
-model_table
-
-calibration_table <- model_table %>%
-  modeltime_calibrate(testing(splits))
-
-calibration_table
-
-calibration_table %>%
-  modeltime_forecast(actual_data = lzona_esp_1) %>%
-  plot_modeltime_forecast(.interactive = FALSE)
-
-calibration_table %>%
-  modeltime_accuracy() %>%
-  table_modeltime_accuracy(.interactive = FALSE)
-
-
-## Refit and forecast
-calibration_table |> 
-  filter(.model_id == 2) |> 
-  modeltime_refit(lzona_esp_1) %>%
-  modeltime_forecast(h = "8 weeks", actual_data = lzona_esp_1) %>%
-  plot_modeltime_forecast(.interactive = FALSE)
-
-
-
-
-
-
-## Ajustar todos los modelos a lo bestia
-
-lzona_esp <- lista |> 
-  left_join(hospitales) |> 
-  # filter(Especialidad == e,
-  #        id_area == a) |> 
-  fill(total_pacientes, media_tiempo_dias) |> 
-  group_by(nombre_area, Especialidad, fecha) |> 
-  summarise(total_pacientes = sum(total_pacientes, na.rm = TRUE),
-            media_tiempo_dias = mean(media_tiempo_dias, na.rm = TRUE)) 
-
-dfs <- split(lzona_esp, ~nombre_area + Especialidad)
-
+  res_pacientes <- modelos_xgboost_pacientes()
 res_tiempo <- modelos_xgboost()
 
-
+  if (input$parametro =="media_tiempo_dias"){
   a <- paste0(input$zona,".",input$especialidad)
   h = as.integer(input$horizonte)
 
@@ -488,9 +272,17 @@ res_tiempo <- modelos_xgboost()
   print(res_tiempo[[a]])
   ## Predicción
   prediccion <- res_tiempo[[a]] |>
-    modeltime_forecast(h = h , actual_data = dfs[[a]])
-  })
+    modeltime_forecast(h = h)
+
   
+  }else{
+      a <- paste0(input$zona,".",input$especialidad)
+  h = as.integer(input$horizonte)
+      prediccion <- res_pacientes[[a]] |>
+    modeltime_forecast(h = h)
+  }
+
+  })
 
     observeEvent(input$abguardar, {
 
