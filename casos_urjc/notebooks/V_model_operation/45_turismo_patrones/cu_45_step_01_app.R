@@ -1,5 +1,5 @@
 ########
-# APP PASO 1 (SELECCIÓN DE FICHEROS) CU 04 (GESTIÓN VACUNAS GRIPE)
+# APP PASO 1 (SELECCIÓN DE FICHEROS) CU 45
 ########
 
 ## Paquetes ----
@@ -24,7 +24,7 @@ library(readr)
 ui <- function(request){
   fluidPage(
     theme = bs_theme(bootswatch = "flatly"),
-    titlePanel(title = "Carga de datos - CitizenLab CU 25"),
+    titlePanel(title = "Carga de datos - CitizenLab CU 45"),
     ## fichero zonas ----
     fluidRow(
       p("Seleccione los ficheros para el caso de uso. Existen ficheros de ejemplo, y próximamente se podrán usar ficheros de usuario. Se muestran las 1.000 primeras filas del fichero"),
@@ -347,7 +347,7 @@ server <- function(input, output, session) {
     # req(carpetas_sesion$carpeta_entrada)
     req(input$pimunicipios)
     datatable(dfmunicipios(), 
-              options = list(paging = FALSE))
+              options = list(paging = TRUE))
   })
   
 }
