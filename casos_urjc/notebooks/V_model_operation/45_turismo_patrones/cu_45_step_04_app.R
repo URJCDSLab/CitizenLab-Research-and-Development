@@ -57,6 +57,9 @@ ui <- function(request) {
             withSpinner(7),
           h3("Gráfico de dispersión"),
            plotlyOutput("points") |> 
+             withSpinner(2, color.background = COL1),
+          h3("Serie temporal"),
+           plotlyOutput("temporal") |> 
              withSpinner(2, color.background = COL1)
       )
     )
@@ -290,6 +293,27 @@ server <- function(input, output, session) {
             geom_point() +
             labs(x = input$ccaa, y = "Receptor", colour = "Cluster") +
             theme_minimal()
+    return(ggplotly(p))
+  })
+    
+  
+
+  output$temporal <- renderPlotly({
+    req(input$nanyos, input$ccaa, dfclusters())
+    df <- dfprovincias() |> 
+                     filter(municipio_destino %in% input$muni)
+    df <- na.omit(df, cols = "total_ccaa")
+    df$mes <- paste0(df$mes, "-01")
+
+    # Now convert to Date
+    df$mes <- as.Date(df$mes, format = "%Y-%m-%d")
+
+    # Plot the data
+    p <- ggplot(df, aes(x = mes, y = turistas, group = total_ccaa, color = total_ccaa)) +
+      geom_line() +
+      theme_minimal() +
+      labs(x = "Mes", y = "Turistas") +
+      theme(legend.title = element_blank())
     return(ggplotly(p))
   })
 

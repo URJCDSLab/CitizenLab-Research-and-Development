@@ -176,13 +176,9 @@ server <- function(input, output, session) {
 
   pred <- reactive({
     req(model, dfescenarios)
-    escenario <- dfescenarios()
-    names(escenario) <- names(escenario) %>%
-      tolower() %>%  # Convert to lower case
-      iconv("UTF-8", "ASCII//TRANSLIT") %>%  # Remove special characters
-      gsub("[, -]+", "_", .) %>%  # Replace spaces and commas with underscores
-      gsub("_+", "_", .) %>%  # Replace two or more consecutive underscores with a single underscore
-      gsub("\\.", "", .)  # Remove periods
+    escenario <- dfescenarios()%>%
+      clean_names()
+    
     predict(model(), escenario)
   })
 
