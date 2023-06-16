@@ -189,7 +189,9 @@ server <- function(input, output, session) {
   })
 
   output$textnsim <- renderText({
-    dfvariables() |> filter(variable == "NSIM") |> pull(descripcion)
+    dfvariables() |> filter(variable == "NSIM") |> pull(descripcion)updateSelectInput(session, "variable_plot",
+
+                        choices = colnames(dfhistorico() %>% select(where(is.numeric))))
   })
 
 }

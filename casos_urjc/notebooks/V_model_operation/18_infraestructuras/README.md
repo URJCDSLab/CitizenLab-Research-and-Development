@@ -44,7 +44,7 @@ $ Rscript -e 'shiny::runApp("cu_18_step_01_app.R", port = 4000)'
 
 Navegador:
 
-http://127.0.0.1:4000/?carpeta_entrada=cu_04_step_01_input&carpeta_salida=cu_04_step_01_output&carpeta_maestros=cu_04_maestros
+http://127.0.0.1:4000/?carpeta_entrada=cu_18_step_01_input&carpeta_salida=cu_18_step_01_output&carpeta_maestros=cu_18_maestros
 
 
 Paso 2
@@ -62,7 +62,7 @@ $ Rscript -e 'shiny::runApp("cu_18_step_02_app.R", port = 4000)'
 
 Navegador:
 
-http://127.0.0.1:4000/?carpeta_entrada=cu_04_step_01_output&carpeta_salida=cu_04_step_02_output&carpeta_maestros=cu_04_maestros
+http://127.0.0.1:4000/?carpeta_entrada=cu_18_step_01_output&carpeta_salida=cu_18_step_02_output&carpeta_maestros=cu_18_maestros
 
 
 > VARIABLES QUE SE TIENEN QUE PODER MODIFICAR Y TIPO DE CONTROL:
@@ -86,7 +86,7 @@ $ Rscript -e 'shiny::runApp("cu_18_step_03_app.R", port = 4000)'
 
 Navegador:
 
-http://127.0.0.1:4000/?carpeta_entrada=cu_04_step_02_output&carpeta_salida=cu_04_step_03_output&carpeta_maestros=cu_04_maestros
+http://127.0.0.1:4000/?carpeta_entrada=cu_18_step_02_output&carpeta_salida=cu_18_step_03_output&carpeta_maestros=cu_18_maestros
 
 >Si se ha seleccionado NIVEL=Distrito, entonces mapa de áreas y poder seleccionar
 lo que representa el color de entre las columnas de CU_18_05_16_distritos_variables.csv
