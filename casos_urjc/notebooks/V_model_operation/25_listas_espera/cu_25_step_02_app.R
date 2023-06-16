@@ -187,7 +187,7 @@ server <- function(input, output, session) {
       inputId = "horizonte",
       label = "Horizonte temporal (semanas)",
       choices = seq(1, 52),
-      selected = 1
+      selected = as.numeric(dfvariables() |> filter(variable == "HORIZONTE") |> pull(valor))
     )
   })
 
@@ -200,7 +200,7 @@ server <- function(input, output, session) {
     numericInput(
       inputId = "nper",
       label = "Número de periodos (días) a simular",
-      value = 365,
+      value = as.numeric(dfvariables() |> filter(variable == "NPER") |> pull(valor)),
       min = 1,
       max = 7300
     )
