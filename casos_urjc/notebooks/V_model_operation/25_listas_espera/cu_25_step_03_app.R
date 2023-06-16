@@ -43,22 +43,41 @@ ui <- function(request) {
                    size = "md",
                    icon = icon("floppy-disk")),
         br(), br(),
+        conditionalPanel(condition="input.tabselected==1",
         uiOutput("uisemana"),
-        uiOutput("uiespecialidad"),                                  
+        uiOutput("uiespecialidad")),                                  
         selectInput("dataset_plot", "Seleccionar conjunto de datos",
-                                              choices = c("Datos lista de espera", "Datos de capacidad", 
-                                                          "Indicadores de área")),
+                    choices = c("Datos lista de espera", "Datos de capacidad", 
+                                "Indicadores de área")),
+            conditionalPanel(condition="input.tabselected==1",
         selectInput("variable_plot", "Seleccionar variable numérica",
-                                              choices = NULL),
+                    choices = NULL)),
+        
 
       ),
       
       mainPanel(
-        tabsetPanel(
-          tabPanel("Mapa", 
-                   h1("Mapa"),
-                   leafletOutput("mapa")
-          )
+        tabsetPanel(id = "tabselected",
+          tabPanel("Visualización", value = 1,
+
+                   # Add the conditional block to show the leaflet map
+                   conditionalPanel(
+                     condition = "input.horizonte != 'Todas'",
+                     h1("Mapa"),
+                     leafletOutput("mapa")
+                   ),
+                           # Add the conditional block to show the time series plot
+                conditionalPanel(
+                  condition = "input.horizonte == 'Todas'",
+                  h1("Plot"),
+                  plotlyOutput("time_series_plot")
+                )
+          ),
+
+                         tabPanel(title = "Tabla de Datos", value = 2,
+                                  DT::dataTableOutput("table_data")
+                         )
+
         )
       )
     )
@@ -149,10 +168,14 @@ server <- function(input, output,session) {
   })
 
   output$uisemana <- renderUI({
+    choices_b = c("Todas",seq(1, 52))
+    if (input$dataset_plot != "Datos lista de espera") {
+      choices_b = seq(1, 52)
+    } 
     selectInput(
       inputId = "horizonte",
       label = "Semana",
-      choices = seq(1, 52),
+      choices = choices_b,
       selected = 1
     )
   })
@@ -165,6 +188,17 @@ server <- function(input, output,session) {
       choices = c("","",""),
       selected = 1
     )
+  })
+
+  output$table_data <- DT::renderDataTable({
+
+    if (input$dataset_plot == "Datos lista de espera") {
+      dfhistorico()
+    } else if (input$dataset_plot == "Datos de capacidad") {
+      dfcapacidad()
+    } else if (input$dataset_plot == "Indicadores de área") {
+      dfindicadores()
+    } 
   })
 
 
@@ -306,6 +340,29 @@ leaflet(data = dmap) %>%
       } 
 
   
+  })
+
+
+  # Render the time series plot. Group info by the selected especialidad and sum the values of input$variable_plot
+  output$time_series_plot <- renderPlotly({
+    datos <- dfhistorico()
+    esp <- input$especialidad
+    variable <- input$variable_plot
+
+    datos_filter <- datos |> 
+      filter(Especialidad == esp) |> 
+      group_by(semana) |> 
+      summarise(across(where(is.numeric), sum))
+
+    print(esp)
+    print(datos_filter)
+    datos_filter = na.omit(datos_filter)
+    p<- ggplot(datos_filter, aes(x = semana, y = get(variable))) +
+      geom_line() +
+      labs(x = "Semana", y = variable, title = "Serie temporal") +
+      theme_minimal()
+    return(p)
+
   })
 
 }
