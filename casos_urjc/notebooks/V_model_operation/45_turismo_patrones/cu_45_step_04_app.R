@@ -49,8 +49,13 @@ ui <- function(request) {
       column(10,
           leafletOutput("plot_data") |>
             withSpinner(4),
-          DT::dataTableOutput("table_data") |>
+          h3("Datos por municipio"),
+          DT::dataTableOutput("table_muni") |>
             withSpinner(7),
+          h3("Media por cluster"),
+          DT::dataTableOutput("table_clusters") |>
+            withSpinner(7),
+          h3("Gráfico de dispersión"),
            plotlyOutput("points") |> 
              withSpinner(2, color.background = COL1)
       )
@@ -253,13 +258,26 @@ server <- function(input, output, session) {
     }
   })
 
-  output$table_data <- DT::renderDataTable({
+  output$table_muni <- DT::renderDataTable({
     if (!is.null(input$muni)) {
         clusters <- dfclusters() |> 
                      filter(anyo %in% input$nanyos) |> 
                      filter(mun_dest %in% input$muni)
         clusters <- t(clusters)
         colnames(clusters) <- clusters[2, ]
+        return(clusters)
+    }
+  })
+
+  output$table_clusters <- DT::renderDataTable({
+    if (!is.null(input$muni)) {
+        clusters <- dfclusters() |> 
+            filter(anyo %in% input$nanyos) |>   
+            group_by(cluster) %>%
+            summarise(across(everything(), mean, na.rm = TRUE))
+        clusters <- as.data.frame(t(clusters))
+        colnames(clusters) <- as.character(clusters[1,])
+        clusters <- clusters[-(1:3), ]
         return(clusters)
     }
   })
@@ -270,7 +288,7 @@ server <- function(input, output, session) {
     clusters <- dfclusters() 
     p <- ggplot(clusters, aes(x = clusters[[input$ccaa]], y = receptor, colour = cluster)) +
             geom_point() +
-            labs(x = "CCAA", y = "Receptor", colour = "Cluster", title = "Dispersion plot of CCAA and Receptor colored by Cluster") +
+            labs(x = input$ccaa, y = "Receptor", colour = "Cluster") +
             theme_minimal()
     return(ggplotly(p))
   })

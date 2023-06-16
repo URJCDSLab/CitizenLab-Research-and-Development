@@ -38,8 +38,8 @@ ui <- function(request) {
               navbarPage("Visualización",
                          tabPanel(title = "Table data",
                                   selectInput("dataset", "Seleccionar conjunto de datos",
-                                              choices = c("Valoraciones", "Datos receptor", "Datos de municipio", 
-                                                          "Datos de provincia")),
+                                              choices = c("Valoraciones", "Datos receptor", "Datos de municipios", 
+                                                          "Datos de provincias")),
                                   DT::dataTableOutput("table_data") |>
                                     withSpinner(7)
                          ),
@@ -61,7 +61,6 @@ server <- function(input, output, session) {
 
   ## . carpetas ----
   carpetas <- reactive({
-    message("AQU")
     carpeta_entrada <- getQueryString()$carpeta_entrada
     if(any(is.null(carpeta_entrada))){
       confirmSweetAlert(
@@ -115,17 +114,19 @@ server <- function(input, output, session) {
   })
   
   ## Render table data
-  output$table_data <- DT::renderDataTable({
-    if (input$dataset == "Datos receptor") {
-      dfreceptor()
-    } else if (input$dataset == "Datos de municipios") {
-      dfmunicipios()
-    } else if (input$dataset == "Datos de provincias") {
-      dfprovincias()
-    } else if (input$dataset == "Valoraciones") {
-      dfvaloraciones()
-    } 
-  })
+    output$table_data <- DT::renderDataTable({
+      if (input$dataset == "Datos receptor") {
+        df <- dfreceptor()
+      } else if (input$dataset == "Datos de municipios") {
+        df <- dfmunicipios()
+      } else if (input$dataset == "Datos de provincias") {
+        df <- dfprovincias()
+      } else if (input$dataset == "Valoraciones") {
+        df <- dfvaloraciones() 
+      } 
+  
+      DT::datatable(df, options = list(server = TRUE))
+    })
  
   ## Render plot based on selected dataset and numeric variable
   output$plot_data <- renderLeaflet({
