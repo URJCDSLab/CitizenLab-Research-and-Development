@@ -1,6 +1,5 @@
 ########
-# APP PASO 4 (PROYECCIÓN)
-########
+# APP PASO 7 
 
 library(shiny)
 library(modeltime)
@@ -37,8 +36,6 @@ library(simmer)
 library(simmer.plot)
 library(simmer)
 
-
-
 ## Config
 
 Sys.setlocale(category = "LC_ALL", locale = "es_ES.UTF-8")
@@ -50,51 +47,29 @@ ui <- function(request) {
     useShinydashboard(),
     useWaiter(),
     
-    titlePanel(title = "SIMULACION 05 - CitizenLab CU 25"),
+    titlePanel(title = "MAPA 07 - CitizenLab CU 25"),
 
     # ... Otros elementos de la UI
     
     sidebarLayout(
       sidebarPanel(
-        h3("Guardar datos para el siguiente paso"),
-        actionBttn("abguardar",
-                   "Guardar datos",
-                   size = "md",
-                   icon = icon("floppy-disk")),
-        br(), br(),
-        
+        # h3("Guardar datos para el siguiente paso"),
+        # actionBttn("abguardar",
+        #            "Guardar datos",
+        #            size = "md",
+        #            icon = icon("floppy-disk")),
+        # br(), br(),
+        uiOutput("uipt"),
+        uiOutput("uipredsim"),
         uiOutput("uiespecialidad"),
-        uiOutput("uizona"),
-        uiOutput("uihorizonte")
+        uiOutput("uihorizonte"),
       ),
       
       mainPanel(
         tabsetPanel(
-          tabPanel("Capacidad", 
-                   h1("Capacidad"),
-                   tableOutput("capacidad_table")
-          ),
-          tabPanel("Simulaciones",
-                   h1("Simulaciones"),
-                   tableOutput("simus")
-          ),
-          tabPanel("Visualizaciones",
-                   fluidRow(
-                     column(width = 6,
-                            h1("Visualización Simulaciones"),
-                            plotOutput("simus_visu1")
-                     ),
-                     column(width = 6,
-                            h1("Visualización Simulaciones"),
-                            plotOutput("simus_visu2")
-                     )
-                   ),
-                   fluidRow(
-                     column(width = 12,
-                            h1("Visualización Simulaciones"),
-                            plotOutput("simus_visu3")
-                     )
-                   )
+          tabPanel("Mapa", 
+                   h1("Mapa de Calor"),
+                   leafletOutput("mapa_calor")
           )
         )
       )
@@ -105,32 +80,17 @@ ui <- function(request) {
 
 server <- function(input, output, session) {
   
-    observeEvent(input$abguardar, {
-
-
-    ## Copiar resto input a output para siguientes pasos
-    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_03_areasgeo.json"),
-              paste0(carpetas()$carpeta_salida, "/CU_25_05_03_areasgeo.json"))
-    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_05_01_hospitales.csv"),
-              paste0(carpetas()$carpeta_salida, "/CU_25_05_05_01_hospitales.csv"))
-    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_06_indicadores_area.csv"),
-              paste0(carpetas()$carpeta_salida, "/CU_25_05_06_indicadores_area.csv"))
-    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_07_01_capacidad.csv"),
-          paste0(carpetas()$carpeta_salida, "/CU_25_05_07_01_capacidad.csv"))
-    file.copy(paste0(carpetas()$carpeta_entrada, "/CU_25_05_07_02_lista_espera.csv"),
-          paste0(carpetas()$carpeta_salida, "/CU_25_05_07_02_lista_espera.csv"))
-        file.copy(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"),
-          paste0(carpetas()$carpeta_salida, "/VARIABLES.csv"))
+  #   observeEvent(input$abguardar, {
 
     
 
-    sendSweetAlert(
-      session = session,
-      title = "¡¡ Éxito !!",
-      text = "Se han guardado los ficheros para el siguiente paso del caso.",
-      type = "success"
-    )
-  })
+  #   sendSweetAlert(
+  #     session = session,
+  #     title = "¡¡ Éxito !!",
+  #     text = "Se han guardado los ficheros para el siguiente paso del caso.",
+  #     type = "success"
+  #   )
+  # })
 
 
   
@@ -174,9 +134,256 @@ server <- function(input, output, session) {
                             carpeta_maestros = carpeta_maestros)))
     }
   })
+
+  output$mapa_calor <- renderLeaflet({
+
+esp <- input$especialidad
+f <- as.numeric(input$horizonte)
+    zonas <- df_zonas()
+if (input$predsim == "Pred"){
+
+    pred_h_personas <- pred_h_personas()
+    pred_h_tiempo <- pred_h_tiempo()
+
+    if (input$pt == "Personas"){
+      datos <- pred_h_personas
+      popup_legend <- "Personas"
+    }else{
+      datos <- pred_h_tiempo
+      popup_legend <- "Tiempo"
+    }
+    print("_______________")
+    print(datos)
+    f <- datos$.index[f]
+dmap <- zonas |> 
+  full_join(datos |> 
+              tidyr::separate(id, into = c("zona", "especialidad"), sep = "\\.") |> 
+              filter(especialidad == esp,
+                     .index == f),
+            by = c("DESBDT" = "zona")) 
+qpal <- colorQuantile("Blues", dmap$.value, n = 4)  
+print(dmap)
+a <- dmap |> 
+  leaflet() |> 
+  addTiles() |> 
+  addPolygons(color = ~qpal(.value), 
+              fillOpacity = 0.8,
+              weight = 1,
+              popup = ~paste(round(.value), popup_legend),
+              label = ~DESBDT)  |> 
+  addLegend("bottomright", pal = qpal, values = ~.value,
+            title = popup_legend,
+            opacity = 1
+  ) 
+}else{
+      sim_ultimo_llegadas <- sim_ultimo_llegadas()
+      sim_ultimo_recursos <- sim_ultimo_recursos()
+      sim_h_llegadas <- sim_h_llegadas()
+      sim_h_recursos <- sim_h_recursos()
+      if (f ==0 && input$pt == "Personas"){
+      datos <- sim_ultimo_llegadas
+      popup_legend <- "Llegadas"
+      ## Este join tarda un poco, hago el filter primero
+## Filtro valores menores que time, y después me quedo solo con el último valor de cada zona
+dfsim <- sim_h_llegadas |> 
+  tidyr::separate(id, into = c("zona", "especialidad"), sep = "\\.") |> 
+  filter(especialidad == esp,
+         start_time <= f) |> 
+  group_by(zona) |> 
+  summarise(cola = sum(finished))
+
+dmap <- zonas |> 
+  full_join(dfsim,
+            by = c("DESBDT" = "zona"))  
+
+qpal <- colorQuantile("Blues", dmap$cola, n = 4)  
+a<- dmap |> 
+  leaflet() |> 
+  addTiles() |> 
+  addPolygons(color = ~qpal(cola), 
+              fillOpacity = 0.8,
+              weight = 1,
+              popup = ~paste(round(cola), "personas"),
+              label = ~DESBDT)  |> 
+  addLegend("bottomright", pal = qpal, values = ~cola,
+            title = "Cola",
+            opacity = 1
+  ) 
+
+
+      
+    }else if (f ==0 && input$pt == "Tiempo"){
+      datos <- sim_ultimo_recursos
+    popup_legend <- "Recursos"
+
+    ## Este join tarda un poco, hago el filter primero
+## Filtro valores menores que time, y después me quedo solo con el último valor de cada zona
+dfsim <- sim_h_recursos |> 
+  tidyr::separate(id, into = c("zona", "especialidad"), sep = "\\.") |> 
+  filter(especialidad == esp,
+         time <= f) |> 
+  group_by(zona) |> 
+  slice_tail(n = 1)
+
+dmap <- zonas |> 
+  full_join(dfsim,
+            by = c("DESBDT" = "zona"))  
+
+qpal <- colorQuantile("Blues", dmap$system, n = 4)  
+a<-dmap |> 
+  leaflet() |> 
+  addTiles() |> 
+  addPolygons(color = ~qpal(system), 
+              fillOpacity = 0.8,
+              weight = 1,
+              popup = ~paste(round(system), "personas"),
+              label = ~DESBDT)  |> 
+  addLegend("bottomright", pal = qpal, values = ~system,
+            title = "Sistema",
+            opacity = 1
+  ) 
+
+
+    }else if (input$pt == "Personas"){
+      datos <- sim_h_llegadas
+    popup_legend <- "Llegadas"
+
+## Este join tarda un poco, hago el filter primero
+## Filtro valores menores que time, y después me quedo solo con el último valor de cada zona
+dfsim <- sim_h_llegadas |> 
+  tidyr::separate(id, into = c("zona", "especialidad"), sep = "\\.") |> 
+  filter(especialidad == esp,
+         start_time <= f) |> 
+  group_by(zona) |> 
+  summarise(cola = sum(finished))
+
+dmap <- zonas |> 
+  full_join(dfsim,
+            by = c("DESBDT" = "zona"))  
+
+qpal <- colorQuantile("Blues", dmap$cola, n = 4)  
+a<- dmap |> 
+  leaflet() |> 
+  addTiles() |> 
+  addPolygons(color = ~qpal(cola), 
+              fillOpacity = 0.8,
+              weight = 1,
+              popup = ~paste(round(cola), "personas"),
+              label = ~DESBDT)  |> 
+  addLegend("bottomright", pal = qpal, values = ~cola,
+            title = "Cola",
+            opacity = 1
+  ) 
+
+    
+    }else if (input$pt == "Tiempo"){
+              datos <- sim_h_recursos
+            popup_legend <- "Recursos"
+
+        ## Este join tarda un poco, hago el filter primero
+        ## Filtro valores menores que time, y después me quedo solo con el último valor de cada zona
+        dfsim <- sim_h_recursos |> 
+          tidyr::separate(id, into = c("zona", "especialidad"), sep = "\\.") |> 
+          filter(especialidad == esp,
+                time <= f) |> 
+          group_by(zona) |> 
+          slice_tail(n = 1)
+
+        dmap <- zonas |> 
+          full_join(dfsim,
+                    by = c("DESBDT" = "zona"))  
+
+        qpal <- colorQuantile("Blues", dmap$system, n = 4)  
+        a <- dmap |> 
+          leaflet() |> 
+          addTiles() |> 
+          addPolygons(color = ~qpal(system), 
+                      fillOpacity = 0.8,
+                      weight = 1,
+                      popup = ~paste(round(system), "personas"),
+                      label = ~DESBDT)  |> 
+          addLegend("bottomright", pal = qpal, values = ~system,
+                    title = "Sistema",
+                    opacity = 1
+          ) 
+
+
+
+
+    }
+
+
+
+  }
+
+return(a)
+  })
+
+
+
+  output$uipt <- renderUI({
+    selectInput(
+      inputId = "pt",
+      label = "Tipo",
+      choices = c("Personas","Tiempo"),
+      selected = "Personas"
+    )
+  })
+
   
-    # Resto del código del servidor...
-  
+  output$uipredsim <- renderUI({
+    selectInput(
+      inputId = "predsim",
+      label = "Predicción o Simulación",
+      choices = c("Pred","Sim"),
+      selected = "Predicción"
+    )
+  })
+
+
+
+  output$uiespecialidad <- renderUI({
+    selectInput(
+      inputId = "especialidad",
+      label = "Especialidad",
+      choices = unique(dfhistorico()$Especialidad),
+      selected = "Angiología y Cirugía Vascular"
+    )
+  })
+
+  pred_h_personas <- reactive({
+    read_rds(paste0(carpetas()$carpeta_entrada, 
+                    "/pred_h_personas.rds"))
+  })
+
+  pred_h_tiempo <- reactive({
+    read_rds(paste0(carpetas()$carpeta_entrada, 
+                    "/pred_h_tiempo.rds"))
+  })
+    sim_h_recursos <- reactive({
+    read_rds(paste0(carpetas()$carpeta_entrada, 
+                    "/sim_h_recursos.rds"))
+  })
+
+    sim_h_llegadas <- reactive({
+    read_rds(paste0(carpetas()$carpeta_entrada, 
+                    "/sim_h_llegadas.rds"))
+  })
+
+    sim_ultimo_llegadas <- reactive({
+    read_rds(paste0(carpetas()$carpeta_entrada, 
+                    "/sim_ultimo_llegadas.rds"))
+  })
+    sim_ultimo_recursos <- reactive({
+    read_rds(paste0(carpetas()$carpeta_entrada, 
+                    "/sim_ultimo_recursos.rds"))
+  })
+
+    df_zonas <- reactive({
+    st_read(paste0(carpetas()$carpeta_entrada, 
+                    "/CU_25_05_03_areasgeo.json"))
+  })
+
   dfhistorico <- reactive({
     read_csv(paste0(carpetas()$carpeta_entrada, "/CU_25_05_07_02_lista_espera.csv"), 
              show_col_types = FALSE)
@@ -200,536 +407,6 @@ server <- function(input, output, session) {
     dfvariables <- reactive({
     read_csv(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"), 
              show_col_types = FALSE)
-  })
-  
-  # Cargar modelos Prophet/XGBoost
-
-  modelos_xgboost <- reactive({
-    read_rds(paste0(carpetas()$carpeta_maestros, 
-                    "/modelos_tiempo_xgboost.rds"))
-  })
-
-
-  # Calcular y mostrar la capacidad seleccionada
-  output$capacidad_table <- renderTable({
-      capacidad_seleccionada <- dfcapacidad() %>%
-        filter(Especialidad == input$especialidad, nombre_area == input$zona)
-      capacidad_seleccionada
-    
-  })
-
-
-  # Calcular y mostrar la capacidad seleccionada
-output$simus_visu3 <- renderPlot({
-modelo_pacientes <- modelos_xgboost_pacientes()
-modelo_tiempo <- modelos_xgboost()
-
-
-
-capacidad <- dfcapacidad()
-
-
-e <- input$especialidad
-z <- input$zona
-NPER <- dfvariables() |> 
-  filter(variable == "NPER") |> 
-  pull(valor)  
-h <- dfvariables() |> 
-  filter(variable == "HORIZONTE") |> 
-  pull(valor)
-
-s <- paste(z, e, sep = ".")
-
-
-cap <- capacidad |> 
-  filter(nombre_area == z,
-         Especialidad == e) |> 
-  pull(capacidad)
-
-
-  if (input$horizonte == 0){
-      ## Si se elige último
-pacientes_en_cola <- modelo_pacientes |> 
-  pluck(s, ".calibration_data", 1) |> 
-  slice_max(fecha) |> 
-  pull(.actual)
-
-tiempo_medio_en_cola <- modelo_tiempo |> 
-  pluck(s, ".calibration_data", 1) |> 
-  slice_max(fecha) |> 
-  pull(.actual)
-
-
-  }else{
-    h = as.integer(input$horizonte)
-    ## Si se elige predicción 
-
-  pacientes_en_cola <- modelo_pacientes |> 
-    pluck(s) |>
-    modeltime_forecast(h = h) |> 
-    slice_tail(n = 1) |> pull(.value)
-
-  tiempo_medio_en_cola <- modelo_tiempo |> 
-    pluck(s) |>
-    modeltime_forecast(h = h) |> 
-    slice_tail(n = 1) |> pull(.value)
-
-  }
-
-
-
-## Parámetros
-## Llegadas
-
-lambda <- pacientes_en_cola / tiempo_medio_en_cola
-
-## Tiempo de servicio
-mu <- lambda/pacientes_en_cola
-
-## Capacidad es cap
-
-
-
-library(simmer)
-#set.seed(1) no usar en la app para que salgan cosas distintas al cambiar
-
-env <- simmer("listasSim")
-# env
-
-paciente <- trajectory("Trayectoria del paciente") %>%
-  ## Operación
-  seize("quirofano", 1) %>%
-  timeout(function() rexp(1, mu)) %>%
-  release("quirofano", 1)
-
-env %>%
-  add_resource("quirofano", cap) %>%
-  add_generator("inicial", paciente, at(rep(0, pacientes_en_cola))) |> 
-  add_generator("paciente", paciente, function() rpois(1, lambda))
-
-
-env %>% 
-  run(NPER)
-
-# env %>% peek(3)
-
-#Esto de momento no
-# library(parallel)
-# envs <- mclapply(1:100, function(i) {
-#   simmer("listassim100") %>%
-#     add_resource("quirofano", cap) %>%
-#     add_generator("inicial", paciente, at(rep(0, pacientes_en_cola))) |> 
-#     add_generator("paciente", paciente, function() rpois(1, lambda)) |> 
-#     run(NPER) %>%
-#     wrap()
-# })
-# 
-# resources <- get_mon_resources(envs)
-# plot(resources, metric = "utilization")
-# plot(resources, metric = "usage", c("quirofano"))
-
-
-## Mostrar con datatable
-recursos <- get_mon_resources(env)
-recursos
-
-llegadas <- get_mon_arrivals(env, ongoing = TRUE)
-llegadas
-
-    plot(recursos, metric = "utilization")
-  })
-
-
-  # Calcular y mostrar la capacidad seleccionada
-output$simus <- renderTable({
-modelo_pacientes <- modelos_xgboost_pacientes()
-modelo_tiempo <- modelos_xgboost()
-
-
-
-capacidad <- dfcapacidad()
-
-
-e <- input$especialidad
-z <- input$zona
-NPER <- dfvariables() |> 
-  filter(variable == "NPER") |> 
-  pull(valor)  
-h <- dfvariables() |> 
-  filter(variable == "HORIZONTE") |> 
-  pull(valor)
-
-s <- paste(z, e, sep = ".")
-
-
-cap <- capacidad |> 
-  filter(nombre_area == z,
-         Especialidad == e) |> 
-  pull(capacidad)
-
-
-  if (input$horizonte == 0){
-      ## Si se elige último
-pacientes_en_cola <- modelo_pacientes |> 
-  pluck(s, ".calibration_data", 1) |> 
-  slice_max(fecha) |> 
-  pull(.actual)
-
-tiempo_medio_en_cola <- modelo_tiempo |> 
-  pluck(s, ".calibration_data", 1) |> 
-  slice_max(fecha) |> 
-  pull(.actual)
-
-
-  }else{
-    h = as.integer(input$horizonte)
-    ## Si se elige predicción 
-
-  pacientes_en_cola <- modelo_pacientes |> 
-    pluck(s) |>
-    modeltime_forecast(h = h) |> 
-    slice_tail(n = 1) |> pull(.value)
-
-  tiempo_medio_en_cola <- modelo_tiempo |> 
-    pluck(s) |>
-    modeltime_forecast(h = h) |> 
-    slice_tail(n = 1) |> pull(.value)
-
-  }
-
-
-
-## Parámetros
-## Llegadas
-
-lambda <- pacientes_en_cola / tiempo_medio_en_cola
-
-## Tiempo de servicio
-mu <- lambda/pacientes_en_cola
-
-## Capacidad es cap
-
-
-
-library(simmer)
-#set.seed(1) no usar en la app para que salgan cosas distintas al cambiar
-
-env <- simmer("listasSim")
-# env
-
-paciente <- trajectory("Trayectoria del paciente") %>%
-  ## Operación
-  seize("quirofano", 1) %>%
-  timeout(function() rexp(1, mu)) %>%
-  release("quirofano", 1)
-
-env %>%
-  add_resource("quirofano", cap) %>%
-  add_generator("inicial", paciente, at(rep(0, pacientes_en_cola))) |> 
-  add_generator("paciente", paciente, function() rpois(1, lambda))
-
-
-env %>% 
-  run(NPER)
-
-# env %>% peek(3)
-
-#Esto de momento no
-# library(parallel)
-# envs <- mclapply(1:100, function(i) {
-#   simmer("listassim100") %>%
-#     add_resource("quirofano", cap) %>%
-#     add_generator("inicial", paciente, at(rep(0, pacientes_en_cola))) |> 
-#     add_generator("paciente", paciente, function() rpois(1, lambda)) |> 
-#     run(NPER) %>%
-#     wrap()
-# })
-# 
-# resources <- get_mon_resources(envs)
-# plot(resources, metric = "utilization")
-# plot(resources, metric = "usage", c("quirofano"))
-
-
-## Mostrar con datatable
-recursos <- get_mon_resources(env)
-recursos
-
-llegadas <- get_mon_arrivals(env, ongoing = TRUE)
-write_csv(llegadas, paste0(carpetas()$carpeta_salida, "/SIMULACIONES_LLEGADAS.csv"))
-llegadas
-
-  })
-
-
-  # Calcular y mostrar la capacidad seleccionada
-output$simus_visu2 <- renderPlot({
-modelo_pacientes <- modelos_xgboost_pacientes()
-modelo_tiempo <- modelos_xgboost()
-
-
-
-capacidad <- dfcapacidad()
-
-
-e <- input$especialidad
-z <- input$zona
-NPER <- dfvariables() |> 
-  filter(variable == "NPER") |> 
-  pull(valor)  
-h <- dfvariables() |> 
-  filter(variable == "HORIZONTE") |> 
-  pull(valor)
-
-s <- paste(z, e, sep = ".")
-
-
-cap <- capacidad |> 
-  filter(nombre_area == z,
-         Especialidad == e) |> 
-  pull(capacidad)
-
-
-  if (input$horizonte == 0){
-      ## Si se elige último
-pacientes_en_cola <- modelo_pacientes |> 
-  pluck(s, ".calibration_data", 1) |> 
-  slice_max(fecha) |> 
-  pull(.actual)
-
-tiempo_medio_en_cola <- modelo_tiempo |> 
-  pluck(s, ".calibration_data", 1) |> 
-  slice_max(fecha) |> 
-  pull(.actual)
-
-
-  }else{
-    h = as.integer(input$horizonte)
-    ## Si se elige predicción 
-
-  pacientes_en_cola <- modelo_pacientes |> 
-    pluck(s) |>
-    modeltime_forecast(h = h) |> 
-    slice_tail(n = 1) |> pull(.value)
-
-  tiempo_medio_en_cola <- modelo_tiempo |> 
-    pluck(s) |>
-    modeltime_forecast(h = h) |> 
-    slice_tail(n = 1) |> pull(.value)
-
-  }
-
-
-
-## Parámetros
-## Llegadas
-
-lambda <- pacientes_en_cola / tiempo_medio_en_cola
-
-## Tiempo de servicio
-mu <- lambda/pacientes_en_cola
-
-## Capacidad es cap
-
-
-
-library(simmer)
-#set.seed(1) no usar en la app para que salgan cosas distintas al cambiar
-
-env <- simmer("listasSim")
-# env
-
-paciente <- trajectory("Trayectoria del paciente") %>%
-  ## Operación
-  seize("quirofano", 1) %>%
-  timeout(function() rexp(1, mu)) %>%
-  release("quirofano", 1)
-
-env %>%
-  add_resource("quirofano", cap) %>%
-  add_generator("inicial", paciente, at(rep(0, pacientes_en_cola))) |> 
-  add_generator("paciente", paciente, function() rpois(1, lambda))
-
-
-env %>% 
-  run(NPER)
-
-# env %>% peek(3)
-
-#Esto de momento no
-# library(parallel)
-# envs <- mclapply(1:100, function(i) {
-#   simmer("listassim100") %>%
-#     add_resource("quirofano", cap) %>%
-#     add_generator("inicial", paciente, at(rep(0, pacientes_en_cola))) |> 
-#     add_generator("paciente", paciente, function() rpois(1, lambda)) |> 
-#     run(NPER) %>%
-#     wrap()
-# })
-# 
-# resources <- get_mon_resources(envs)
-# plot(resources, metric = "utilization")
-# plot(resources, metric = "usage", c("quirofano"))
-
-
-## Mostrar con datatable
-recursos <- get_mon_resources(env)
-recursos
-
-llegadas <- get_mon_arrivals(env, ongoing = TRUE)
-llegadas
-    plot(recursos, metric = "usage", c("quirofano"))
-  })
-
-
-  # Calcular y mostrar la capacidad seleccionada
-output$simus_visu1 <- renderPlot({
-modelo_pacientes <- modelos_xgboost_pacientes()
-modelo_tiempo <- modelos_xgboost()
-
-
-
-capacidad <- dfcapacidad()
-
-
-e <- input$especialidad
-z <- input$zona
-NPER <- dfvariables() |> 
-  filter(variable == "NPER") |> 
-  pull(valor)  
-h <- dfvariables() |> 
-  filter(variable == "HORIZONTE") |> 
-  pull(valor)
-
-s <- paste(z, e, sep = ".")
-
-
-cap <- capacidad |> 
-  filter(nombre_area == z,
-         Especialidad == e) |> 
-  pull(capacidad)
-
-
-  if (input$horizonte == 0){
-      ## Si se elige último
-pacientes_en_cola <- modelo_pacientes |> 
-  pluck(s, ".calibration_data", 1) |> 
-  slice_max(fecha) |> 
-  pull(.actual)
-
-tiempo_medio_en_cola <- modelo_tiempo |> 
-  pluck(s, ".calibration_data", 1) |> 
-  slice_max(fecha) |> 
-  pull(.actual)
-
-
-  }else{
-    h = as.integer(input$horizonte)
-    ## Si se elige predicción 
-
-  pacientes_en_cola <- modelo_pacientes |> 
-    pluck(s) |>
-    modeltime_forecast(h = h) |> 
-    slice_tail(n = 1) |> pull(.value)
-
-  tiempo_medio_en_cola <- modelo_tiempo |> 
-    pluck(s) |>
-    modeltime_forecast(h = h) |> 
-    slice_tail(n = 1) |> pull(.value)
-
-  }
-
-
-
-## Parámetros
-## Llegadas
-
-lambda <- pacientes_en_cola / tiempo_medio_en_cola
-
-## Tiempo de servicio
-mu <- lambda/pacientes_en_cola
-
-## Capacidad es cap
-
-
-
-library(simmer)
-#set.seed(1) no usar en la app para que salgan cosas distintas al cambiar
-
-env <- simmer("listasSim")
-# env
-
-paciente <- trajectory("Trayectoria del paciente") %>%
-  ## Operación
-  seize("quirofano", 1) %>%
-  timeout(function() rexp(1, mu)) %>%
-  release("quirofano", 1)
-
-env %>%
-  add_resource("quirofano", cap) %>%
-  add_generator("inicial", paciente, at(rep(0, pacientes_en_cola))) |> 
-  add_generator("paciente", paciente, function() rpois(1, lambda))
-
-
-env %>% 
-  run(NPER)
-
-# env %>% peek(3)
-
-#Esto de momento no
-# library(parallel)
-# envs <- mclapply(1:100, function(i) {
-#   simmer("listassim100") %>%
-#     add_resource("quirofano", cap) %>%
-#     add_generator("inicial", paciente, at(rep(0, pacientes_en_cola))) |> 
-#     add_generator("paciente", paciente, function() rpois(1, lambda)) |> 
-#     run(NPER) %>%
-#     wrap()
-# })
-# 
-# resources <- get_mon_resources(envs)
-# plot(resources, metric = "utilization")
-# plot(resources, metric = "usage", c("quirofano"))
-
-
-## Mostrar con datatable
-recursos <- get_mon_resources(env)
-recursos
-
-llegadas <- get_mon_arrivals(env, ongoing = TRUE)
-plot(llegadas)
-
-
-    
-  })
-
-
-
-    output$uizona <- renderUI({
-  selectInput(
-    inputId = "zona",
-    label = "Zona",
-    choices = c("Centro-Norte","Centro-Oeste","Este","Norte","Oeste","Sur I","Sur Ii","Sur-Este","Sur-Oeste I","Sur-Oeste Ii"),
-    selected = "Centro-Norte"
-  )
-})
-
-  output$uiespecialidad <- renderUI({
-    selectInput(
-      inputId = "especialidad",
-      label = "Especialidad",
-      choices = unique(dfhistorico()$Especialidad),
-      selected = "Angiología y Cirugía Vascular"
-    )
-  })
-
-  modelos_xgboost <- reactive({
-    read_rds(paste0(carpetas()$carpeta_maestros, 
-                    "/modelos_tiempo_xgboost.rds"))
-  })
-
-    modelos_xgboost_pacientes <- reactive({
-    read_rds(paste0(carpetas()$carpeta_maestros, 
-                    "/modelos_pacientes_xgboost.rds"))
   })
 
 
