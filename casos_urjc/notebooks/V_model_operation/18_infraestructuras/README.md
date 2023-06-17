@@ -115,10 +115,10 @@ $ Rscript -e 'shiny::runApp("cu_18_step_04_app.R", port = 4000)'
 
 Navegador:
 
-http://127.0.0.1:4000/?carpeta_entrada=cu_04_step_02_output&carpeta_salida=cu_04_step_04_output&carpeta_maestros=cu_04_maestros
+http://127.0.0.1:4000/?carpeta_entrada=cu_18_step_02_output&carpeta_salida=cu_18_step_04_output&carpeta_maestros=cu_18_maestros
 
 
->Cargar datos de clusters de cu_19_maestros
+>Cargar datos de clusters de cu_18_maestros
 >Si se ha seleccionado NIVEL=Distrito, entonces mapa de áreas coloreado según el cluster
 >
 >Si se ha seleccionado NIVEL=Diario, entonces mapa de puntos, coloreado según el cluster
@@ -145,8 +145,12 @@ Qué hace: Visualizar modelo GLM y predecir escenarios
 Terminal:
 
 ````
-$ Rscript xxxxxx
+$ Rscript -e 'shiny::runApp("cu_18_step_05_app.R", port = 4000)'
 ````
+
+Navegador:
+http://127.0.0.1:4000/?carpeta_entrada=cu_18_step_02_output&carpeta_salida=cu_18_step_05_output&carpeta_maestros=cu_18_maestros
+
 
 >Se carga el modelo de regresión. Se muestra summary y gráfico de dispersión
 respuesta (evento_infra o evento_zona) vs una de las variables del modelo

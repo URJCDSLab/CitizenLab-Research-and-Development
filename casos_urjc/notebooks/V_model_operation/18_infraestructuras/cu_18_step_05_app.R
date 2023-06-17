@@ -1,4 +1,4 @@
-# APP PASO 4 (VISUALIZACIÓN DE RESULTADOS)
+# APP PASO 5 (PREDICCIÓN)
 ## Paquetes
 library(shiny)
 library(shinyWidgets)
@@ -41,28 +41,50 @@ ui <- function(request) {
 
    
 
-  
+    sidebarLayout(
 
+      sidebarPanel(
 
+        column(width = 6,
+               uiOutput("uimodelo"),
+               uiOutput("select_variable")
+
+        )
+
+      ),
 
       mainPanel(
 
-          tabPanel("Visualización",
+        tabsetPanel(
+
+                    tabPanel("Datos Modelo",
+
+                  column(width = 12,
+                   verbatimTextOutput("modelo_resumen"),
+                   plotOutput("dispersion")
+            )),
+
+          tabPanel("Predicción",
 
                    column(width = 12,
 
-                          leafletOutput("map")
+                          DT::dataTableOutput("table_data")
 
+                   )
 
-          
+          )
 
-        
+        )
 
-      
+      )
 
-    ))))
+    )
+
+  )
+  
 
 }
+
 
 # SERVER
 server <- function(input, output, session) {
@@ -119,92 +141,77 @@ server <- function(input, output, session) {
 
   ## Read variable data
   dfvariables <- reactive({
-    print(carpetas()$carpeta_entrada)
     read_csv(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"), 
              show_col_types = FALSE)
   })
 
-  datos_distritos <- reactive({
-    read_csv(file.path(carpetas()$carpeta_entrada, "/CU_18_05_16_distritos_variables.csv"))
-  })
-  
-  datos_infra <- reactive({
-    read_csv(file.path(carpetas()$carpeta_entrada, "/CU_18_05_19_01_infraestructuras.csv"))
-  })
-
-  datos_diario <- reactive({
-    read_csv(file.path(carpetas()$carpeta_entrada, "/CU_18_05_20_diario_infra.csv"))
-  })
-
-  distritos_geojson <- reactive({
-    read_sf(file.path(carpetas()$carpeta_entrada, "/CU_18_05_03_distritos_geo.json"))
+  escenario <- reactive({
+    read_csv(file.path(carpetas()$carpeta_entrada, "/ESCENARIO_REGRESION.csv"))
   })
   
   ## MODELO
-  datos_cluster_diario <- reactive({
-    read_rds(file.path(carpetas()$carpeta_maestros,"/datos_cluster_diario.rds"))})
+  modelo_zona <- reactive({
+    read_rds(file.path(carpetas()$carpeta_maestros,"/mod_glm_zona.rds"))})
   
-  datos_cluster_distritos <- reactive({
-    read_rds(file.path(carpetas()$carpeta_maestros,"/datos_cluster_distritos.rds"))})
+  modelo_infra <- reactive({
+    read_rds(file.path(carpetas()$carpeta_maestros,"/mod_glm_infra.rds"))})
+
+      # Render the inputs
+  output$uimodelo <- renderUI({
+    selectInput(
+      inputId = "modelo",
+      label = "Modelo de predicción",
+      choices = c("Infraestructuras", "Zonas"), 
+      selected = "Infraestructuras"    
+      )
+  })
+
+  output$select_variable <- renderUI({
+  selectInput(
+    inputId = "variable",
+    label = "Variable para gráfico de dispersión",
+    choices = names(escenario()), 
+    selected = names(escenario())[1]    
+  )
+})
+
+  output$modelo_resumen <- renderPrint({
+    req(input$modelo)
+    if (input$modelo == "Infraestructuras") {
+        summary(modelo_infra())}else{summary(modelo_zona())
+        }
+
+  })
+
+    output$dispersion <- renderPlot({
+        req(input$modelo)
+    if (input$modelo == "Infraestructuras") {
+    modelo_infra()$model %>%
+      ggplot(aes_string(x = input$variable, y = "evento_infra")) +
+      geom_point(alpha = 0.1) }else{
+         modelo_zona()$model %>%
+      ggplot(aes_string(x = input$variable, y = "evento_zona")) +
+      geom_point(alpha = 0.1) 
+      }
+  })
 
 
-  ## Render leaflet map
-  output$map <- renderLeaflet({
-    map <- leaflet() %>%
-      addTiles()
-    
-    if (dfvariables() |> filter(variable == "NIVEL") |> pull(valor) == "Distrito") {
-# print("puto eugenio")
-# print(names(datos_cluster_distritos()))
 
-dmap <- distritos_geojson() |> # slice(1:100) |>
-inner_join(datos_cluster_distritos(), by = c("CDIS" = "cdis"), multiple="all") 
+  output$table_data <- DT::renderDataTable({
+    req(input$modelo)
+    if (input$modelo == "Infraestructuras") {
 
+      datatable(escenario() |> mutate(Prob.evento = predict(modelo_infra(), escenario(), type = "response")), options=list(scrollX = TRUE))
 
-colors <- colorFactor("RdYlBu", unique(dmap$cluster))
+    }else{
 
-dmap |> leaflet() |>
-  addTiles() |>
-  addPolygons(color="black", 
-    fillColor = ~colors(cluster),
+      datatable(escenario() |> mutate(Prob.evento = predict(modelo_zona(), escenario(), type = "response")), options=list(scrollX = TRUE))
 
-              fillOpacity = 0.8,
+    } 
 
-              weight = 1,
-
-              popup = ~paste("Distrito", CDIS) 
-  ) |>
-  addLegend("bottomright", values = ~cluster,
-  pal=colors,
-        # colors=~colors(unique(cluster)),
-
-            title = "Clusters",
-
-            opacity = 1
-
-  ) 
-  }else{ 
-    
-    dmap <- datos_infra() |>
-    inner_join(datos_cluster_diario(), by = c("id_inf" = "id_inf"), multiple="all") 
-
-    colors <- colorFactor("RdYlBu", unique(dmap$cluster))
-
-    map <- leaflet(dmap) %>%
-            addTiles() %>%
-            addCircleMarkers(
-                ~X, ~Y, # longitude and latitude
-                color = ~colors(cluster), # Color based on "puntos" column
-                radius = 5, # Adjust this based on your requirements
-                stroke = FALSE, fillOpacity = 0.8
-                # label = ~paste0(nombre, " Turistas")
-            ) %>%
-            addLegend("bottomright", pal = colors, values = ~cluster,
-                      title = "cluster",
-                      opacity = 1)
-  }})
-
-
+  })
 }
 
 shinyApp(ui, server)
+
+

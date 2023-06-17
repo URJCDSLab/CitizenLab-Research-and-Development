@@ -146,7 +146,6 @@ server <- function(input, output, session) {
 
   ## Read variable data
   dfvariables <- reactive({
-    print(carpetas()$carpeta_entrada)
     read_csv(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"), 
              show_col_types = FALSE)
   })
