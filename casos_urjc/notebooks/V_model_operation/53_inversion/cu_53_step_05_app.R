@@ -28,6 +28,7 @@ library(glmnet)
 library(tsibble)
 library(feasts)
 library(forecast)
+library(fable)
 
 ## Config
 
@@ -80,20 +81,7 @@ ui <- function(request) {
           ## . proyección tab ----
           tabPanel(title = "Proyección",
                    fluidRow(
-                     column(width = 10,
-                         tabsetPanel(
-                           tabPanel(
-                             title = "Serie",
-                             icon = icon("chart-line"),
-                             plotlyOutput("serieproy")  |> withSpinner(2, color.background = COL1)
-                           ),
-                           tabPanel(
-                             title = "Datos",
-                             icon = icon("table"),
-                             dataTableOutput("tablaproy") |> withSpinner(7)
-                           ),
-                           id = "vtpproy"
-                         ))
+                     column(width = 10,plotOutput("serieproy"))
                    )
           )
         )
@@ -182,7 +170,7 @@ server <- function(input, output, session) {
 
 
   df_x_inv <- reactive({
-    inversiones <- dfinversiones_cm_detail()
+    inversiones <- dfinversionescmdetail()
     x_inv <- inversiones |>
     group_by(anyo) |>
     mutate(total_anyo = sum(inversion),
@@ -198,29 +186,28 @@ server <- function(input, output, session) {
     as.matrix()
   })
 
+
   df_spi_ts <- reactive({
     x_inv <- df_x_inv()
     spi_madrid <- x_inv |>
       bind_cols(predict(mod_53_reg(), x_inv)) |>
       rename(spi = s0)
-
     spi_ts <- spi_madrid |> as_tsibble(index = spiyear)
   })
 
   df_proy <- reactive({
-    prediction <- mod_53_arima() |> forecast(h = 2)
+    prediction <- mod_53_arima() |> forecast(h = 3)
+    prediction
   })
 
   mod_53_reg <- reactive({
-    read_rds("cu_53_step_04_output/modelo_reg.rds")
+    read_rds(file.path(carpetas()$carpeta_maestros, "MODELO_REG.rds"))
   })
 
   mod_53_arima <- reactive({
     spi_ts <- df_spi_ts()
-    # Automatically select the optimal ARIMA model
-    modelo_ts <- auto.arima(as.ts(spi_ts))
-    #modelo_ts <- spi_ts |> model(arima = ARIMA(spi))
-    modelo_ts
+    modelo_ts <- spi_ts |>
+      model(arima = ARIMA(spi))
   })
 
   ## . outputs ----
@@ -244,27 +231,8 @@ server <- function(input, output, session) {
   })
 
   ## .. Serie proyección ----
-  output$serieproy <- renderPlotly({
-    print("Starting to pred..")
-    preds <- df_proy()
-    print("Preds made")
-    print(preds)
-
-    p <- preds |>
-      ggplot() +
-      aes(x = spiyear,
-          y = Proyeccion) +
-      geom_line(col = COL1) +
-      labs(x = "spiyear",
-           y = "Proyeccion") +
-      # scale_x_date(date_breaks = "1 month",
-      #              date_minor_breaks = "1 week",
-      #              labels = function(x) month(x, label = TRUE)) +
-      theme_bw() +
-      theme(#axis.text.x = element_text(angle = 45, vjust = 0.5),
-        plot.margin = unit(c(1.2, 1, 1, 1), "cm"))
-    ggplotly(p) |>
-      layout(title = list(text = "Proyección SPIs"))
+  output$serieproy <- renderPlot({
+    df_proy() |> autoplot(df_spi_ts())
   })
 
 }

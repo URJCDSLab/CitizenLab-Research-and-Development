@@ -48,7 +48,7 @@ ui <- function(request) {
             dataTableOutput("tescenario")),
           tabPanel(
             title = "Modelo",
-            fluidRow(h4("Poisson Generalized Additive Model (GAM)")),
+            fluidRow(h4("GLM Model")),
             fluidRow(
               column(9,
                      tabBox(width = 12,
@@ -62,7 +62,7 @@ ui <- function(request) {
                               verbatimTextOutput("modelo_lambda")),
                             tabPanel(
                               icon = icon("chart-line"),
-                              title = "Gráfico efectos",
+                              title = "Gráfico modelo",
                               fluidRow(
                                 column(8,
                                        plotOutput("plot_gam") |>

@@ -410,7 +410,7 @@ server <- function(input, output, session) {
       write_csv(dftsspimeta(), paste0(carpetas()$carpeta_salida, "/SPI_META.csv"))
       write_csv(dfinversiones(), paste0(carpetas()$carpeta_salida, "/INVERSIONES_PAISES.csv"))
       write_csv(dfinversionescm(), paste0(carpetas()$carpeta_salida, "/INVERSIONES_REGION.csv"))
-      write_csv(dfinversionescm(), paste0(carpetas()$carpeta_salida, "/INVERSIONES_REGION_DETAIL.csv"))
+      write_csv(dfinversionescmdetail(), paste0(carpetas()$carpeta_salida, "/INVERSIONES_REGION_DETAIL.csv"))
 
       ## Mover archivos de los siguientes casos
       file.copy(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"),

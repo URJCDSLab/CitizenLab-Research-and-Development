@@ -36,7 +36,8 @@ ui <- function(request) {
       sidebarPanel(width = 2,
                    htmlOutput("uiselector") |> withSpinner(1),
                    uiOutput("uianyo"),
-                   uiOutput("uipaises")
+                   uiOutput("uipaises"),
+                   uiOutput("uiindicador")
 
       ) ,
 
@@ -58,8 +59,8 @@ ui <- function(request) {
                                                plotlyOutput("serie_vac") |>
                                                  withSpinner(2, color.background = COL1)
                                       ),
-                                      tabPanel("Datos (CM)",
-                                               DT::dataTableOutput("tabla_cm") |>
+                                      tabPanel("Serie (CM)",
+                                               plotlyOutput("serie_cm") |>
                                                  withSpinner(7)
                                       )
                                     )
@@ -179,72 +180,6 @@ server <- function(input, output, session) {
     req(input$sianyo)
     sfpaises() |>
       left_join(dfspi(), by = c("name_long"="country"), multiple = "all")
-      #filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN)) |>
-      #group_by(GEOCODIGO, DESBDT) |>
-      #summarise(n_vacunas = sum(n_vacunas), .groups = "drop")
-
-  })
-
-  dfmapapred <- reactive({
-    r$mapapredmsg <- ""
-    if (input$sipredictor %in% colnames(dfhistorico())){
-      sfpaises() |>
-        left_join(dfhistorico(), by = c("GEOCODIGO", "DESBDT"),
-                  multiple = "all") |>
-        filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN)) |>
-        group_by(GEOCODIGO, DESBDT) |>
-        summarise(across(n_vacunas:n_citas, ~sum(.x, na.rm = TRUE)),
-                  across(tmed:so2, ~mean(.x, na.rm = TRUE)),
-                  .groups = "drop")
-
-    } else if(input$sipredictor %in% colnames(dfindicadores())){
-
-      sfpaises() |>
-        left_join(dfindicadores(), by = c("GEOCODIGO", "DESBDT"),
-                  multiple = "all")
-    } else if (input$sipredictor %in% colnames(dfescucha())){
-      r$mapapredmsg <- "Los datos de escucha no están geolocalizados. Seleccione otro predictor."
-      NA
-    } else if (input$sipredictor == ""){
-      r$mapapredmsg <- "Seleccione un predictor en el menú lateral para poder representarlo en el mapa"
-      NA
-    }
-  })
-
-  dfseriepred <- reactive({
-    r$seriepredmsg <- ""
-    PREDICTOR <- input$sipredictor
-    if (PREDICTOR %in% colnames(dfhistorico())){
-      if(input$sizona == ""){
-        sdata <- dfhistorico() |>
-          select(-n_vacunas) |>
-          filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN)) |>
-          group_by(ano, semana) |>
-          summarise("{PREDICTOR}" := mean(eval(parse(text = input$sipredictor)), na.rm = TRUE), .groups = "drop")
-        r$nzona <- ""
-      } else{
-        r$nzona <- sfpaises() |>
-          filter(GEOCODIGO == input$sizona) |>
-          pull(DESBDT)
-        sdata <- dfhistorico() |>
-          filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN),
-                 GEOCODIGO == input$sizona)
-      }
-      sdata |>
-        mutate(ano_semana = paste0(ano, "-", semana),
-               fecha = as.Date(parse_date_time(paste(ano, semana, 1, sep="/"),'Y/W/w')))
-    } else if (PREDICTOR %in% colnames(dfescucha())){
-      dfescucha() |>
-        filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN)) |>
-        mutate(ano_semana = paste0(ano, "-", semana),
-               fecha = as.Date(parse_date_time(paste(ano, semana, 1, sep="/"),'Y/W/w')))
-    } else if (PREDICTOR %in% colnames(dfindicadores())){
-      r$seriepredmsg <- "Los datos de indicadores no están disponibles por semana"
-      NA
-    } else if (input$sipredictor == ""){
-      r$seriepredmsg <- "Seleccione un predictor en el menú lateral para poder representarlo en el mapa"
-      NA
-    }
   })
 
   v <- reactive(
@@ -299,6 +234,18 @@ server <- function(input, output, session) {
       )
   })
 
+  output$uiindicador <- renderUI({
+    excluded_columns <- c("rank_score_spi", "spicountrycode", "status", "spiyear", "country")
+    available_columns <- setdiff(colnames(dfspi()), excluded_columns)
+    selectizeInput(
+        inputId = "siindicador",
+        label = "Selecciona el indicador (solo series)",
+        choices = unique(available_columns),
+        selected = NULL,
+        multiple = FALSE
+      )
+  })
+
   ## mapa vacunación ----
   mapa_spi_cargado <-
     eventReactive(input$btncargamapa,
@@ -313,9 +260,11 @@ server <- function(input, output, session) {
                                   smoothFactor = 0.5,
                                   fillOpacity = 1,
                                   fillColor = ~pal(rank_score_spi),
-                                  #highlightOptions = highlightOptions(color = "white", weight = 2,
-                                  #                                    bringToFront = TRUE),
-                                  #popup = ~paste0(DESBDT, " (", GEOCODIGO, ")"),
+                                  popup = ~paste0(
+                                    "Basic human needs: ", score_bhn, "<br>",
+                                    "Foundations of wellbeing: ", score_fow, "<br>",
+                                    "Opportunity: ", score_opp
+                                  ),
                                   label = ~name_long) |>
                       addLegend("bottomright",
                                 pal = pal,
@@ -334,53 +283,25 @@ server <- function(input, output, session) {
 
   ## serie vacunación ----
   output$serie_vac <- renderPlotly({
-    if(input$sizona == ""){
-      sdata <- dfhistorico() |>
-        filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN)) |>
-        group_by(ano, semana) |>
-        summarise(n_vacunas = sum(n_vacunas, na.rm = TRUE), .groups = "drop")
-      NZONA <- NA
-    } else{
-      sdata <- dfhistorico() |>
-        filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN),
-               GEOCODIGO == input$sizona)
-      NZONA <- sfpaises() |>
-        filter(GEOCODIGO == input$sizona) |>
-        pull(DESBDT)
-    }
-    sdata <- sdata |>
-      mutate(ano_semana = paste0(ano, "-", semana),
-             fecha = as.Date(parse_date_time(paste(ano, semana, 1, sep="/"),'Y/W/w')))
+    req(input$siindicador)
 
-    p <- sdata |>
-      ggplot() +
-      aes(x = fecha,
-          y = n_vacunas) +
-      geom_line(col = COL1) +
-      labs(x = "Semana",
-           y = "Total vacunas") +
-      scale_x_date(date_breaks = "1 month",
-                   date_minor_breaks = "1 week",
-                   labels = function(x) month(x, label = TRUE)) +
-      theme_bw() +
-      theme(axis.text.x = element_text(angle = 45, vjust = 0.5),
-            plot.margin = unit(c(1.2, 1, 1, 1), "cm"))
-
-    ggplotly(p) |>
-      layout(title = list(text = paste0("Histórico campaña ", v()$ANO, "/", v()$ANO + 1,
-                                        "<br><sup>",
-                                        if_else(input$sizona == "",
-                                                "Total zonas",
-                                                paste0("Zona ",
-                                                       input$sizona,
-                                                       " (", NZONA, ")"))),
-                          x = 0,
-                          pad = list(b = 90, l = 130, r = 50 )))
+    dfplot <- dfspi() %>% filter(country %in% input$sipais)
+    print(input$siindicador)
+    p <- plot_ly() |>
+     add_trace(data = dfplot, x = ~spiyear, y = ~dfplot[[input$siindicador]],
+                  color = ~country, name = ~country, type = "scatter", mode = "lines") |>
+      layout(xaxis = list(title = "Year"),
+            yaxis = list(title = input$siindicador),
+            showlegend = TRUE)
   })
 
   ## Tabla vacunación ----
-  output$tabla_cm <- DT::renderDataTable({
-    dfinversionescm()
+  output$serie_cm <- renderPlotly({
+    dfplot <- dfinversionescmdetail()
+    p <- plot_ly() |>
+      add_trace(data = dfplot, x = ~anyo, y=~inversion, color=~grupo, type = "scatter", mode = "lines") |>
+        layout(xaxis = list(title = "Año"),
+        showlegend = TRUE)
   })
 }
 

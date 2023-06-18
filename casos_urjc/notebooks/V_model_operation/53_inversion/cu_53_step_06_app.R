@@ -40,22 +40,29 @@ ui <- function(request) {
     theme = bs_theme(bootswatch = "flatly"),
     useShinydashboard(),
     useWaiter(),
-    fluidRow(
-      column(width = 4,
-            sidebarPanel(
-              p("Para lanzar el cálculo, haga click en en botón 'Optimizar'"),
-              p("Ten en cuenta que puede llevar un tiempo."),
-              actionButton("calculate_button", "Optimizar"),
-              br(),
-              br(),
-              #dataTableOutput("input_table")
-            )
-      ),
-      column(width = 8,
-            mainPanel(
-              dataTableOutput("result_table")
-            )
+    titlePanel(title = "Optimización - CitizenLab CU 53"),
+    navbarPage("Optimización",
+    id="paneloptimizacion",
+    tabPanel(
+      title="Optimizacion",
+      fluidRow(
+        column(width = 4,
+              sidebarPanel(
+                p("Para lanzar el cálculo, haga click en en botón 'Optimizar'"),
+                p("Ten en cuenta que puede llevar un tiempo."),
+                actionButton("calculate_button", "Optimizar"),
+                br(),
+                br(),
+                #dataTableOutput("input_table")
+              )
+        ),
+        column(width = 8,
+              mainPanel(
+                dataTableOutput("result_table")
+              )
+        )
       )
+    )
     )
 )
 
