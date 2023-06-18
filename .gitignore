@@ -24,3 +24,5 @@ casos_urjc/notebooks/V_model_operation/18_infraestructuras/cu_18_maestros/mod_gl
 casos_urjc/notebooks/V_model_operation/18_infraestructuras/cu_18_maestros/mod_glm_zona.rds
 casos_urjc/notebooks/V_model_operation/25_listas_espera/cu_25_maestros/modelos_pacientes_xgboost.rds
 casos_urjc/notebooks/V_model_operation/25_listas_espera/cu_25_maestros/modelos_tiempo_xgboost.rds
+
+*.ipynb_checkpoints
