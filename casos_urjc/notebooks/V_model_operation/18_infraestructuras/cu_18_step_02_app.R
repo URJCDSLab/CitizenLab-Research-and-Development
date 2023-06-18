@@ -22,13 +22,13 @@ ui <- function(request){
     titlePanel(title = "Parámetros de usuario - CitizenLab CU 18"),
     fluidRow(
       column(2,
-             uiOutput("uimodelo"),
+             uiOutput("uimodelo")
       ),
       column(2,
-             uiOutput("uinivel"),
+             uiOutput("uinivel")
       ),
       column(2,
-             uiOutput("uinsim"),
+             uiOutput("uinsim")
       )
       
     ),
@@ -189,9 +189,7 @@ server <- function(input, output, session) {
   })
 
   output$textnsim <- renderText({
-    dfvariables() |> filter(variable == "NSIM") |> pull(descripcion)updateSelectInput(session, "variable_plot",
-
-                        choices = colnames(dfhistorico() %>% select(where(is.numeric))))
+    dfvariables() |> filter(variable == "NSIM") |> pull(descripcion)
   })
 
 }

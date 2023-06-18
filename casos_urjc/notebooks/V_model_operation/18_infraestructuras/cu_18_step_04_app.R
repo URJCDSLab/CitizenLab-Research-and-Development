@@ -154,8 +154,6 @@ server <- function(input, output, session) {
       addTiles()
     
     if (dfvariables() |> filter(variable == "NIVEL") |> pull(valor) == "Distrito") {
-# print("puto eugenio")
-# print(names(datos_cluster_distritos()))
 
 dmap <- distritos_geojson() |> # slice(1:100) |>
 inner_join(datos_cluster_distritos(), by = c("CDIS" = "cdis"), multiple="all") 
