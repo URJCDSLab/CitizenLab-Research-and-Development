@@ -233,7 +233,7 @@ server <- function(input, output, session) {
     available_columns <- setdiff(colnames(dfspi()), excluded_columns)
     selectizeInput(
         inputId = "siindicador",
-        label = "Selecciona el indicador (solo series)",
+        label = "Selecciona el indicador (solo serie global)",
         choices = unique(available_columns),
         selected = NULL,
         multiple = FALSE

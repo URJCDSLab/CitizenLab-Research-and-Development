@@ -181,7 +181,7 @@ server <- function(input, output, session) {
   })
 
   mod_53_reg <- reactive({
-    read_rds(file.path(carpetas()$carpeta_maestros, "MODELO_REG.rds"))
+    read_rds(file.path(carpetas()$carpeta_entrada, "MODELO_REG.rds"))
   })
 
   mod_53_arima <- reactive({

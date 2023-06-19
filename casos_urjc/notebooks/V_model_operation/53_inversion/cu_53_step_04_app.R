@@ -48,7 +48,13 @@ ui <- function(request) {
             dataTableOutput("tescenario")),
           tabPanel(
             title = "Modelo",
-            fluidRow(h4("GLM Model")),
+            fluidRow(h4("Modelo Regresión Ridge")),
+            actionBttn("abguardar",
+               "Guardar modelo",
+               size = "md",
+               icon = icon("floppy-disk")),
+            br(),
+            br(),
             fluidRow(
               column(9,
                      tabBox(width = 12,
@@ -152,6 +158,16 @@ server <- function(input, output, session) {
     stopApp()
   })
 
+  observeEvent(input$abguardar, {
+    save_data()
+    sendSweetAlert(
+      session = session,
+      title = "¡¡ Éxito !!",
+      text = "Se han guardado los ficheros para el siguiente paso del caso.",
+      type = "success"
+    )
+  })
+
   ## . Data frames ----
   dfvariables <- reactive({
     read_csv(file.path(carpetas()$carpeta_entrada, "VARIABLES.csv"), show_col_types = FALSE)
@@ -179,7 +195,7 @@ server <- function(input, output, session) {
 
 
   dfproy <- reactive({
-    best_model <- mod_53_gam()
+    best_model <- mod_53_glm()
     X <- dfinversionescm() |> makeX()
     predictions <- predict(best_model, X)
     result <- data.frame(X, Proyeccion = predictions)
@@ -187,19 +203,46 @@ server <- function(input, output, session) {
     result
   })
 
-  mod_53_gam <- reactive({
+
+  mod_53_df <- reactive({
     dfmodel <- dfspi() |>
       filter(spicountrycode != "WWW") |>
       filter(!is.na(score_spi)) |>
       select(spicountrycode, spiyear, score_spi) |> inner_join(dfinversiones())
+  })
 
-    x <- dfmodel |> select(-c(spicountrycode, score_spi) ) |> as.matrix()
-    y <- dfmodel |> select(score_spi)  |> as.matrix()
+  mod_53_X <- reactive({
+    mod_53_df() |> select(-c(spicountrycode, score_spi) ) |> as.matrix()
+  })
+
+  mod_53_y <- reactive({
+    mod_53_df() |> select(score_spi)  |> as.matrix()
+  })
+
+  mod_53_cv <- reactive({
+    x <- mod_53_X()
+    y <- mod_53_y()
     cv_model <- cv.glmnet(x, y, alpha = 0)
+    cv_model
+  })
+
+  mod_53_glm <- reactive({
+    x <- mod_53_X()
+    y <- mod_53_y()
+    cv_model <- mod_53_cv()
     best_lambda <- cv_model$lambda.min
     best_model <- glmnet(x, y, alpha = 0, lambda = best_lambda)
-    write_rds(best_model, paste0(carpetas()$carpeta_maestros, "/MODELO_REG.rds"))
     best_model
+  })
+
+  save_data <- reactive({
+    write_rds(mod_53_glm(), paste0(carpetas()$carpeta_salida, "/MODELO_REG.rds"))
+    write_csv(dfinversiones(), paste0(carpetas()$carpeta_salida, "/INVERSIONES_PAISES.csv"))
+    write_csv(dfinversionescm(), paste0(carpetas()$carpeta_salida, "/INVERSIONES_REGION.csv"))
+    write_csv(dfinversionescmdetail(), paste0(carpetas()$carpeta_salida, "/INVERSIONES_REGION_DETAIL.csv"))
+    write_csv(dfspi(), paste0(carpetas()$carpeta_salida, "/SPI.csv"))
+    write_csv(dfvariables(), paste0(carpetas()$carpeta_salida, "/VARIABLES.csv"))
+    write_csv(dfspimeta(), paste0(carpetas()$carpeta_salida, "/SPI_META.csv"))
   })
 
   ## . outputs ----
@@ -210,16 +253,16 @@ server <- function(input, output, session) {
 
   ## . modelo gam ----
   output$modelo_gam <- renderPrint({
-    model <- mod_53_gam()
+    model <- mod_53_glm()
     as.matrix(coef(model))
   })
 
   output$plot_gam <- renderPlot({
-    plot(mod_53_gam())
+    plot(mod_53_cv())
   })
 
   output$modelo_lambda <- renderPrint({
-    paste("Lambda: ", mod_53_gam()$lambda)
+    paste("Lambda: ", mod_53_glm()$lambda)
   })
 
   ## Tabla de proyeccion

@@ -215,20 +215,20 @@ $ Rscript -e 'shiny::runApp("cu_53_step_05_app.R", port = 4000)'
 >Se muestran las series de la estimación y su proyección.
 
 INPUTS
->> * SPI.csv (Step 2)
->> * SPI_META.csv (Step 2)
->> * PAISES.json (Step 2)
->> * INVERSIONES_REGION_DETAIL.csv (Step 2)
->> * INVERSIONES_REGION.csv (Step 2)
->> * INVERSIONES_PAISES.csv (Step 2)
->> * VARIABLES.csv (Step 2)
->> * MODELO_REG.rds (maestros)
+>> * SPI.csv (Step 4)
+>> * SPI_META.csv (Step 4)
+>> * PAISES.json (Step 4)
+>> * INVERSIONES_REGION_DETAIL.csv (Step 4)
+>> * INVERSIONES_REGION.csv (Step 4)
+>> * INVERSIONES_PAISES.csv (Step 4)
+>> * VARIABLES.csv (Step 4)
+>> * MODELO_REG.rds (Step 4)
 
 
 
 Navegador:
 
-http://127.0.0.1:4000/?carpeta_entrada=cu_53_step_02_output&carpeta_salida=cu_53_step_04_output&carpeta_maestros=cu_53_maestros
+http://127.0.0.1:4000/?carpeta_entrada=cu_53_step_04_output&carpeta_salida=cu_53_step_05_output&carpeta_maestros=cu_53_maestros
 
 Paso 6
 ------
@@ -245,7 +245,7 @@ $ Rscript -e 'shiny::runApp("cu_53_step_06_app.R", port = 4000)'
 
 Navegador:
 
-http://127.0.0.1:4000/?carpeta_entrada=cu_53_step_02_output&carpeta_salida=cu_53_step_06_output&carpeta_maestros=cu_53_maestros
+http://127.0.0.1:4000/?carpeta_entrada=cu_53_step_04_output&carpeta_salida=cu_53_step_06_output&carpeta_maestros=cu_53_maestros
 
 >Se cargan los parámetros de configuración: restricciones y año a predecir
 >
@@ -254,12 +254,12 @@ http://127.0.0.1:4000/?carpeta_entrada=cu_53_step_02_output&carpeta_salida=cu_53
 >Se muestran los valores óptimos
 
 INPUTS
->> * SPI.csv (Step 2)
->> * SPI_META.csv (Step 2)
->> * PAISES.json (Step 2)
->> * INVERSIONES_REGION_DETAIL.csv (Step 2)
->> * INVERSIONES_REGION.csv (Step 2)
->> * INVERSIONES_PAISES.csv (Step 2)
->> * VARIABLES.csv (Step 2)
->> * MODELO_REG.rds (maestros)
+>> * SPI.csv (Step 4)
+>> * SPI_META.csv (Step 4)
+>> * PAISES.json (Step 4)
+>> * INVERSIONES_REGION_DETAIL.csv (Step 4)
+>> * INVERSIONES_REGION.csv (Step 4)
+>> * INVERSIONES_PAISES.csv (Step 4)
+>> * VARIABLES.csv (Step 4)
+>> * MODELO_REG.rds (Step 4)
 
