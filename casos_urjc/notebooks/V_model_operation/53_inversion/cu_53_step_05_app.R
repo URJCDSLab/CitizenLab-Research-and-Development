@@ -52,39 +52,19 @@ ui <- function(request) {
             dataTableOutput("tescenario")),
           tabPanel(
             title = "Modelo",
-            fluidRow(h4("Poisson Generalized Additive Model (GAM)")),
+            fluidRow(h4("ARIMA")),
             fluidRow(
               column(9,
-                     tabBox(width = 12,
-                            # title = "Elementos Modelo",
-                            tabPanel(
-                              icon = icon("circle-info"),
-                              solid = TRUE,
-                              title = "Detalles modelo",
-                              collapsible = TRUE,
-                              verbatimTextOutput("modelo_gam"),
-                              verbatimTextOutput("modelo_lambda")),
-                            tabPanel(
-                              icon = icon("chart-line"),
-                              title = "Gráfico efectos",
-                              fluidRow(
-                                column(8,
-                                       plotOutput("plot_gam") |>
-                                         withSpinner(8)
-                                )
-                              )
-                            )
+                     verbatimTextOutput("modelo_arima"))
                      )
-              )
-            )
-          ),
+              ),
           ## . proyección tab ----
           tabPanel(title = "Proyección",
                    fluidRow(
                      column(width = 10,plotOutput("serieproy"))
                    )
           )
-        )
+    )
   )
 }
 
@@ -217,12 +197,8 @@ server <- function(input, output, session) {
   })
 
   ## . modelo gam ----
-  output$modelo_gam <- renderPrint({
+  output$modelo_arima <- renderPrint({
     as.matrix(coef(mod_53_arima()))
-  })
-
-  output$plot_gam <- renderPlot({
-    plot(mod_53_arima())
   })
 
   ## Tabla de proyeccion

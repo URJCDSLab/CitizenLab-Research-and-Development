@@ -55,7 +55,7 @@ ui <- function(request) {
                                                leafletOutput("mapa_vac") |>
                                                  withSpinner(8)
                                       ),
-                                      tabPanel("Serie",
+                                      tabPanel("Serie (global)",
                                                plotlyOutput("serie_vac") |>
                                                  withSpinner(2, color.background = COL1)
                                       ),
@@ -227,7 +227,7 @@ server <- function(input, output, session) {
   output$uipaises <- renderUI({
     selectizeInput(
         inputId = "sipais",
-        label = "Selecciona los paises (solo series)",
+        label = "Selecciona los paises (solo serie global)",
         choices = unique(dfspi()$country),
         selected = NULL,
         multiple = TRUE
@@ -286,7 +286,6 @@ server <- function(input, output, session) {
     req(input$siindicador)
 
     dfplot <- dfspi() %>% filter(country %in% input$sipais)
-    print(input$siindicador)
     p <- plot_ly() |>
      add_trace(data = dfplot, x = ~spiyear, y = ~dfplot[[input$siindicador]],
                   color = ~country, name = ~country, type = "scatter", mode = "lines") |>
