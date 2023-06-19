@@ -18,8 +18,10 @@ ui <- function(request){
     theme = bs_theme(bootswatch = "flatly"),
     titlePanel(title = "Carga de datos - CitizenLab CU 34"),
     ## fichero zonas ----
+    br(),
+    p("Seleccione los ficheros para el caso de uso. Existen ficheros de ejemplo, y próximamente se podrán usar ficheros de usuario. Se muestran las 1.000 primeras filas del fichero"),
     fluidRow(
-      p("Seleccione los ficheros para el caso de uso. Existen ficheros de ejemplo, y próximamente se podrán usar ficheros de usuario. Se muestran las 1.000 primeras filas del fichero"),
+      br(),
       h3("Fichero de secciones"),
       column(4,
              tabsetPanel(id = "tssecciones",
