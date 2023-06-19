@@ -157,8 +157,8 @@ server <- function(input, output, session) {
 
   model_cluster <- reactive({
     km <- clara(dfzcluster(), 10)
-    write_rds(carpetas()$carpeta_salida, "MODELO_CLUSTER.rds")
-    write_rds(carpetas()$carpeta_maestros, "MODELO_CLUSTER.rds")
+    print(paste0(carpetas()$carpeta_salida, "/MODELO_CLUSTER.rds"))
+    write_rds(km, paste0(carpetas()$carpeta_salida, "/MODELO_CLUSTER.rds"))
     km
   })
 
