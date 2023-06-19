@@ -83,7 +83,7 @@ ui <- function(request){
                          tabPanel("Fichero de ejemplo",
                                   pickerInput(
                                     inputId = "piinfraestructuras",
-                                    label = "Fichero indicadores",
+                                    label = "Fichero infraestructuras",
                                     choices = c("CU_18_05_19_01_infraestructuras.csv"),
                                     options = list(
                                       title = "Seleccione un fichero")
@@ -485,18 +485,13 @@ server <- function(input, output, session) {
     datatable(dfhistorico(),
               options = list(scrollX = TRUE))
   })
-  output$tindicadores <- renderDataTable({
+  output$tinfraestructuras <- renderDataTable({
     # req(carpetas_sesion$carpeta_entrada)
     req(input$piinfraestructuras)
-    datatable(dfindicadores(),
+    datatable(dfinfraestructuras(),
               options = list(scrollX = TRUE))
   })
-  output$tindicadoresmeta <- renderDataTable({
-    # req(carpetas_sesion$carpeta_entrada)
-    req(input$piinfraestructurasmeta)
-    datatable(dfindicadoresmeta(), 
-              options = list(paging = FALSE))
-  })
+
   output$tdistritos <- renderDataTable({
     req(input$pidistritos)
     datatable(dfdistritos())
