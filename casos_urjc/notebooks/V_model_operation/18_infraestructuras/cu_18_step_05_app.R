@@ -32,7 +32,7 @@ ui <- function(request) {
 
     useShinydashboard(),
 
-    titlePanel(title = "Visualización - CitizenLab CU 18"),
+    titlePanel(title = "Modelo GLM - CitizenLab CU 18"),
 
 
 
