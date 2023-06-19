@@ -11,6 +11,7 @@ library(shinyWidgets)
 library(bslib, warn.conflicts = FALSE)
 library(DT, warn.conflicts = FALSE)
 library(leaflet)
+library(leafpop)
 library(ggplot2)
 library(plotly, warn.conflicts = FALSE)
 
@@ -201,10 +202,11 @@ server <- function(input, output, session) {
         summarise(n = n()) |>
         rowwise() |>
         slice_max(n) |>
-        ungroup()
+        ungroup() |> 
+      mutate(cluster = factor(cluster))
 
     plot_df <- sfsecciones() |> inner_join(plot_df, by=c("CSEC", "CDIS", "CMUN"))
-    pal <- colorNumeric(palette = "viridis", domain = plot_df$cluster)
+    pal <- colorFactor(palette = "viridis", domain = plot_df$cluster)
     plot_df |>
     leaflet() |>
       addTiles() |>
@@ -212,7 +214,10 @@ server <- function(input, output, session) {
                   color = "black",
                   weight = 1,
                   smoothFactor = 0.5,
-                  fillOpacity = 1) |>
+                  fillOpacity = 1,
+                  label = ~NSEC) |> 
+                  # popup = popupTable(plot_df, c("futbol", "nservicios", "capacidad"))) |>
+                  # label = ~paste0("Distrito ", CDIS, ";Municipio ", CMUN)) |>
         addLegend("bottomright",
             pal = pal,
             values = ~plot_df$cluster,
@@ -221,18 +226,7 @@ server <- function(input, output, session) {
         )
   })
 
-  output$serie <- renderPlotly({
-    req(input$piseccion)
-    plot_df <- fildered_df() |>
-        filter(CSEC == input$piseccion) |>
-        group_by(Fecha) |>
-        summarize(!!input$picolumn := mean(!!sym(input$picolumn), na.rm = TRUE))
 
-    p <- plot_ly() |>
-      add_trace(name=input$picolumn, data = plot_df, x = ~Fecha, y=plot_df[[input$picolumn]], type = "scatter", mode = "lines") |>
-        layout(xaxis = list(title = "Año"),
-        showlegend = TRUE)
-  })
 }
 
 shinyApp(ui, server)
