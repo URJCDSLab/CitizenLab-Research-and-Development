@@ -1,10 +1,3 @@
-########
-# APP PASO 1 (SELECCIÓN DE FICHEROS) CU 04 (GESTIÓN VACUNAS GRIPE)
-########
-
-
-## Paquetes ----
-
 ## UI
 library(shiny)
 library(shinyWidgets)
@@ -16,22 +9,14 @@ library(sf)
 library(readr)
 
 ## Funciones -----
-
-
-
-
-
-
 ui <- function(request){
   fluidPage(
     theme = bs_theme(bootswatch = "flatly"),
     titlePanel(title = "Carga de datos - CitizenLab CU 53"),
     ## fichero zonas ----
     hr(),
-    hr(),
-    hr(),
+    p("Seleccione los ficheros para el caso de uso. Existen ficheros de ejemplo, y próximamente se podrán usar ficheros de usuario. Se muestran las 1.000 primeras filas del fichero"),
     fluidRow(
-      p("Seleccione los ficheros para el caso de uso. Existen ficheros de ejemplo, y próximamente se podrán usar ficheros de usuario. Se muestran las 1.000 primeras filas del fichero"),
       h3("Archivo spi"),
       column(4,
              tabsetPanel(id = "tsspi",
