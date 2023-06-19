@@ -22,25 +22,38 @@ library(sjmisc)
 
 ## Funciones -----
 ui <- function(request) {
-
+  
   fluidPage(
-
+    
     theme = bs_theme(bootswatch = "flatly"),
     titlePanel(title = "Simulación - CitizenLab CU 34"),
-
+    
     # ... Otros elementos de la UI
-
+    
     tabsetPanel(
-        tabPanel("Gráficas simulación",
-            column(width = 4, uiOutput("sel_chart")),
-            column(width = 12, plotOutput("charts"))
-        ),
-        #tabPanel("Resumen numérico (frecuencia)",
-        #    column(width = 12, verbatimTextOutput("res_num"))
-        #),
-        tabPanel("Resumen numérico (descripción)",
-            column(width = 12, dataTableOutput("res_desc"))
-        )
+      tabPanel("Escenarios",
+               fluidRow(
+                 
+                 column(width = 6,
+                        h4("Datos del escenario"),
+                        dataTableOutput("tescenario")),
+                 column(width = 6,
+                        h4("Parámetros para simulación"),
+                        verbatimTextOutput("text_params")))
+      ),
+      tabPanel("Gráficas simulación",
+               fluidRow(
+                 
+                 column(width = 4, uiOutput("sel_chart")),
+                 column(width = 8, plotOutput("charts"))
+               )
+      ),
+      #tabPanel("Resumen numérico (frecuencia)",
+      #    column(width = 12, verbatimTextOutput("res_num"))
+      #),
+      tabPanel("Resumen numérico (descripción)",
+               column(width = 12, dataTableOutput("res_desc"))
+      )
     )
   )
 }
@@ -49,7 +62,7 @@ ui <- function(request) {
 server <- function(input, output, session) {
   ## Reactives ----
   carpetas <- reactive({
-
+    
     carpeta_entrada <- getQueryString()$carpeta_entrada
     carpeta_salida <- getQueryString()$carpeta_salida
     carpeta_maestros <- getQueryString()$carpeta_maestros
@@ -87,70 +100,79 @@ server <- function(input, output, session) {
                             carpeta_maestros = carpeta_maestros)))
     }
   })
-
+  
   ## observers ----
-
+  
   observeEvent(input$error_carpetas_faltan,{
     stopApp()
   })
-
+  
   observeEvent(input$error_carpetas_existen,{
     stopApp()
   })
-
+  
   # Dataframes
-
+  
   dfvariables <- reactive({
     read_csv(file.path(carpetas()$carpeta_entrada, "VARIABLES.csv"), show_col_types = FALSE)
   })
-
+  
   dfservicios <- reactive({
     read_csv(file.path(carpetas()$carpeta_entrada, "SERVICIOS.csv"), show_col_types = FALSE)
   })
-
+  
   dfescenarios <- reactive({
     read_csv(file.path(carpetas()$carpeta_entrada, "ESCENARIOS.csv"), show_col_types = FALSE)
   })
-
+  
   sfsecciones <- reactive({
     read_sf(file.path(carpetas()$carpeta_entrada, "SECCIONES.json"))
   })
-
+  
   n_sim <- reactive({
     as.numeric(dfvariables() |> filter(variable == "NSIM") |> pull(valor))
   })
-
+  
+  parametros <- reactive({
+    escenario = dfescenarios()
+    list(p_futbol = sum(escenario$Futbol == 1) / nrow(escenario),
+         rate_nservicios = mean(escenario$nservicios),
+         rate_capacidad = mean(escenario$capacidad),
+         media_cont = apply(escenario[,4:25], 2, mean),
+         desv_tip_cont = apply(escenario[,4:25], 2, sd))
+  })
+  
   simulation <- reactive({
     escenario <- dfescenarios()
-    pfutbol <- sum(escenario$Futbol == 1) / nrow(escenario)
-    rate_nservicios <- mean(escenario$nservicios)
-    rate_capacidad <- mean(escenario$capacidad)
-    m_cont <- apply(escenario[,4:25], 2, mean)
-    s_cont <- apply(escenario[,4:25], 2, sd)
+    pfutbol <- parametros()$p_futbol
+    rate_nservicios <- parametros()$rate_nservicios
+    rate_capacidad <- parametros()$rate_capacidad
+    m_cont <- parametros()$media_cont
+    s_cont <- parametros()$desv_tip_cont
     nsim <- n_sim()
     mat <- matrix(rep(NA_real_, nsim*ncol(escenario)), ncol = ncol(escenario))
     mat[, 1] <- rbinom(n_sim(), size = 1, prob = pfutbol)
     mat[, 2:3] <- sapply(c(rate_nservicios, rate_capacidad),
-                        function(x) rpois(nsim, lambda = x))
+                         function(x) rpois(nsim, lambda = x))
     mat[, 4:25] <- sapply((4:25) - 3,
-                        function(x) rnorm(nsim, mean = m_cont[x], sd = s_cont[x]))
+                          function(x) rnorm(nsim, mean = m_cont[x], sd = s_cont[x]))
     colnames(mat) <- colnames(escenario)
     simulacion <- as_tibble(mat)
     simulacion
   })
-
+  
   dfpred <- reactive({
     data <- dfescenarios()
     predict(modelo_ann(), dfescenarios()) |> round(2)
   })
-
+  
   dfpredclass <- reactive({
     data <- dfescenarios()
     predict(modelo_ann(), dfescenarios(), type = "class")
   })
-
+  
   ## render outputs ----
-
+  
   ## dynamic UI ----
   output$sel_chart <- renderUI({
     selectizeInput(
@@ -160,7 +182,7 @@ server <- function(input, output, session) {
       choices =colnames(simulation())
     )
   })
-
+  
   output$charts <- renderPlot({
     req(input$piselchart)
     if (input$piselchart == "Futbol") {
@@ -173,14 +195,23 @@ server <- function(input, output, session) {
         labs(title = paste("Histograma de", input$piselchart), x = input$piselchart, y = "Frecuencia")
     }
   })
-
+  
   # Render the inputs
   #output$res_num  <- renderPrint({
   #  frq(simulation())
   #})
-
+  
   output$res_desc <- renderDataTable({
     datatable(descr(simulation()))
+  })
+  
+  output$tescenario <- DT::renderDataTable({
+    dfescenarios() |> 
+      datatable(options = list(scrollX = TRUE))
+  })
+  
+  output$text_params <- renderPrint({
+    parametros()
   })
 }
 

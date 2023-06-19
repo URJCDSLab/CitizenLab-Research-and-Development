@@ -35,7 +35,8 @@ ui <- function(request) {
 
     useShinydashboard(),
 
-    titlePanel(title = "Predicción - CitizenLab CU 34"),
+    titlePanel(title = "Modelo ANN - CitizenLab CU 34"),
+    h4("Predicción de Clusters del escenario con Redes Neuronales"),
 
     # ... Otros elementos de la UI
 
@@ -44,7 +45,9 @@ ui <- function(request) {
             column(width = 12, dataTableOutput("pred_table"))
         ),
         tabPanel("Gráfico barras predicciones",
-            column(width = 12, plotOutput("pred_chart"))
+            column(width = 12, plotOutput("pred_chart",
+                                          width = "80%",
+                                          height = "600px"))
         )
     )
   )
@@ -141,7 +144,14 @@ server <- function(input, output, session) {
 
   # Render the inputs
   output$pred_chart <- renderPlot({
-    barplot(table(dfpredclass()), main = "Frecuencia de los cluster (predicción)", xlab = "Cluster", ylab = "Frequency")
+    # barplot(table(dfpredclass()), main = "Frecuencia de los cluster (predicción)", xlab = "Cluster", ylab = "Frequency")
+    data.frame(class = dfpredclass()) |>
+      ggplot(aes(x = class)) + 
+        geom_bar(fill = "orange") +
+      labs(y = "Frecuencia",
+           x = "Cluster predicho",
+           title = "Distribución de los clusters predichos en el escenario") +
+      theme_bw()
   })
 
   output$pred_table <- renderDataTable({
