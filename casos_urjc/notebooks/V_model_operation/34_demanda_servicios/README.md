@@ -99,16 +99,6 @@ http://127.0.0.1:4000/?carpeta_entrada=cu_34_step_02_output&carpeta_salida=cu_34
 
 
 
->Se carga el modelo de redes neuronales
->
->Se carga el escenario
->
->Se predicen las probabilidades de los clusters
->
->Se muestra tabla detalle de las predicciones (probabilidades)
->
->Se muestra gráfico de barras con las frecuencias de los clusters predichos
-
 
 
 Paso 6
@@ -121,21 +111,13 @@ Qué hace: Simulación de servicios
 Terminal:
 
 ````
-$ Rscript -e 'shiny::runApp("cu_04_step_06_app.R", port = 4000)'
+$ Rscript -e 'shiny::runApp("cu_34_step_06_app.R", port = 4000)'
 ````
 
 Navegador:
 
-http://127.0.0.1:4000/?carpeta_entrada=cu_04_step_05_output&carpeta_salida=cu_04_step_06_output&carpeta_maestros=cu_04_maestros
+http://127.0.0.1:4000/?carpeta_entrada=cu_34_step_02_output&carpeta_salida=cu_34_step_06_output&carpeta_maestros=cu_34_maestros
 
->Se carga el escenario de servicios
->
->Se calculan los parámetros de las distribuciones
->
->Se simula el escenario NSIM veces
->
->Se muestra resumen de las variables: gráfico de barras Futbol, histogramas del resto
->y resumen numérico con summarytools::freq() y summarytools::descr()
->
+
 
 
