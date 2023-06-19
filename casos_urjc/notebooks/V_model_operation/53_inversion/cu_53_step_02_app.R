@@ -215,14 +215,22 @@ server <- function(input, output, session) {
     dfvariables() |> filter(variable == "ANYOOPT") |> pull(descripcion)
   })
 
-
   # Inv tot
   output$uirestinvtot <- renderUI({
-     selectInput(
+    numericInput(
       inputId = "sirestinvtot",
-      label = dfvariables() |> filter(variable == "RESTINVTOT") |> pull(etiqueta),
-      choices = seq(dfvariables() |> filter(variable == "RESTINVTOT") |> pull(min), dfvariables() |> filter(variable == "RESTINVTOT") |> pull(max)),
-      selected = dfvariables() |> filter(variable == "RESTINVTOT") |> pull(min)
+      label = dfvariables() %>%
+        filter(variable == "RESTINVTOT") %>%
+        pull(etiqueta),
+      value = dfvariables() %>%
+        filter(variable == "RESTINVTOT") %>%
+        pull(valor),
+      min = dfvariables() %>%
+        filter(variable == "RESTINVTOT") %>%
+        pull(min),
+      max = dfvariables() %>%
+        filter(variable == "RESTINVTOT") %>%
+        pull(max)
     )
   })
   output$textrestinvtot <- renderText({
@@ -230,15 +238,24 @@ server <- function(input, output, session) {
   })
 
   # Inv inf
-
   output$uirestinvinf <- renderUI({
-     selectInput(
+    numericInput(
       inputId = "sirestinvinf",
-      label = dfvariables() |> filter(variable == "RESTINVINF") |> pull(etiqueta),
-      choices = seq(dfvariables() |> filter(variable == "RESTINVINF") |> pull(min), dfvariables() |> filter(variable == "RESTINVTOT") |> pull(max)),
-      selected = dfvariables() |> filter(variable == "RESTINVINF") |> pull(min)
+      label = dfvariables() %>%
+        filter(variable == "RESTINVINF") %>%
+        pull(etiqueta),
+      value = dfvariables() %>%
+        filter(variable == "RESTINVINF") %>%
+        pull(valor),
+      min = dfvariables() %>%
+        filter(variable == "RESTINVINF") %>%
+        pull(min),
+      max = dfvariables() %>%
+        filter(variable == "RESTINVINF") %>%
+        pull(max)
     )
   })
+
   output$textrestinvinf <- renderText({
     dfvariables() |> filter(variable == "RESTINVINF") |> pull(descripcion)
   })
@@ -246,13 +263,23 @@ server <- function(input, output, session) {
   # Inv ur
 
   output$uirestinvtur <- renderUI({
-     selectInput(
+    numericInput(
       inputId = "sirestinvur",
-      label = dfvariables() |> filter(variable == "RESTINVTUR") |> pull(etiqueta),
-      choices = seq(dfvariables() |> filter(variable == "RESTINVTUR") |> pull(min), dfvariables() |> filter(variable == "RESTINVTOT") |> pull(max)),
-      selected = dfvariables() |> filter(variable == "RESTINVTUR") |> pull(min)
+      label = dfvariables() %>%
+        filter(variable == "RESTINVTUR") %>%
+        pull(etiqueta),
+      value = dfvariables() %>%
+        filter(variable == "RESTINVTUR") %>%
+        pull(valor),
+      min = dfvariables() %>%
+        filter(variable == "RESTINVTUR") %>%
+        pull(min),
+      max = dfvariables() %>%
+        filter(variable == "RESTINVTUR") %>%
+        pull(max)
     )
   })
+
   output$textrestinvtur <- renderText({
     dfvariables() |> filter(variable == "RESTINVTUR") |> pull(descripcion)
   })
@@ -260,11 +287,20 @@ server <- function(input, output, session) {
   # Inv an
 
   output$uirestinvsan <- renderUI({
-     selectInput(
+    numericInput(
       inputId = "sirestinvan",
-      label = dfvariables() |> filter(variable == "RESTINVSAN") |> pull(etiqueta),
-      choices = seq(dfvariables() |> filter(variable == "RESTINVSAN") |> pull(min), dfvariables() |> filter(variable == "RESTINVTOT") |> pull(max)),
-      selected = dfvariables() |> filter(variable == "RESTINVSAN") |> pull(min)
+      label = dfvariables() %>%
+        filter(variable == "RESTINVSAN") %>%
+        pull(etiqueta),
+      value = dfvariables() %>%
+        filter(variable == "RESTINVSAN") %>%
+        pull(valor),
+      min = dfvariables() %>%
+        filter(variable == "RESTINVSAN") %>%
+        pull(min),
+      max = dfvariables() %>%
+        filter(variable == "RESTINVSAN") %>%
+        pull(max)
     )
   })
 
