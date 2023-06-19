@@ -171,20 +171,20 @@ server <- function(input, output, session) {
     req(input$dates)
     
     datos_diario_filter <- datos_diario() %>% filter(fecha >= input$dates[1] & fecha <= input$dates[2])
-    
     # df_summarised <- datos_diario_filter %>%
     #   group_by(id_inf) %>%
     #   summarise(across(where(is.numeric) & !c(tmed, velmedia, presMax), sum, na.rm = TRUE),
     #             tmed = mean(tmed, na.rm = TRUE),
     #             velmedia = mean(velmedia, na.rm = TRUE),
     #             presMax = mean(presMax, na.rm = TRUE))
+    # print(colnames(datos_diario()))
     df_summarised <- datos_diario_filter %>%
       group_by(id_inf) %>%
       summarise(across(c(where(is.numeric), -c(tmed, velmedia, presMax)), 
                        ~sum(.x, na.rm = TRUE)),
                 tmed = mean(tmed, na.rm = TRUE),
                 velmedia = mean(velmedia, na.rm = TRUE),
-                presMax = mean(presMax, na.rm = TRUE))
+                presMax = mean(presMax, na.rm = TRUE)) 
     
   })
   
@@ -262,12 +262,13 @@ server <- function(input, output, session) {
       
       dmap <- df_summarised_diario() |> 
         inner_join(datos_infra(), by = c("id_inf" = "id_inf"), 
-                   multiple="all") |> slice(1:4000)
-      
+                   multiple="all") #|> slice(1:4000)
       
       
       
       gpal <- colorNumeric(palette="Blues", domain = dmap[[input$variable_plot]]) 
+      
+      print(colnames(dmap))
       
       map <- leaflet(dmap) %>%
         addTiles() %>%
@@ -275,8 +276,9 @@ server <- function(input, output, session) {
           ~X, ~Y, # longitude and latitude
           color = ~gpal(dmap[[input$variable_plot]]), # Color based on "puntos" column
           radius = 5, # Adjust this based on your requirements
-          stroke = FALSE, fillOpacity = 0.8
-          # label = ~paste0(nombre, " Turistas")
+          stroke = FALSE, fillOpacity = 0.8,
+          label = ~paste0(nombre, " (", dmap[[input$variable_plot]], ")"),
+          popup = ~paste0("<b>Tipo</b>: ", tipo, "<br/><b>Grupo: </b>", grupo)
         ) %>%
         addLegend("bottomright", pal = gpal, values = dmap[[input$variable_plot]],
                   title = input$variable_plot,
