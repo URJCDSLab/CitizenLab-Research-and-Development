@@ -268,7 +268,6 @@ server <- function(input, output, session) {
       
       gpal <- colorNumeric(palette="Blues", domain = dmap[[input$variable_plot]]) 
       
-      print(colnames(dmap))
       
       map <- leaflet(dmap) %>%
         addTiles() %>%
