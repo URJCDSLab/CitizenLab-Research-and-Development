@@ -21,6 +21,7 @@ library(sf)
 library(readr)
 library(dplyr, warn.conflicts = FALSE)
 library(lubridate, warn.conflicts = FALSE)
+library(tidyverse)
 
 Sys.setlocale(category = "LC_ALL", locale = "es_ES.UTF-8")
 COL1 <- rgb(33/255, 150/255, 243/255)
@@ -61,6 +62,10 @@ ui <- function(request) {
                                       ),
                                       tabPanel("Serie (CM)",
                                                plotlyOutput("serie_cm") |>
+                                                 withSpinner(7)
+                                      ),
+                                      tabPanel("Tabla (CM)",
+                                               dataTableOutput("table_cm") |>
                                                  withSpinner(7)
                                       )
                                     )
@@ -165,21 +170,10 @@ server <- function(input, output, session) {
     read_sf(paste0(carpetas()$carpeta_entrada, "/PAISES.json"))
   })
 
-  dfspifiltered <- reactive({
-    req(input$sianyo)
-    spi <- dfspi()
-
-    if (!(is.null(input$sipais) || length(input$sipais))) {
-      spi <- subset(spi, country %in% input$sipais)
-    }
-
-    spi |> filter(spiyear == input$sianyo)
-  })
-
   dfmapa <- reactive({
     req(input$sianyo)
     sfpaises() |>
-      left_join(dfspi(), by = c("name_long"="country"), multiple = "all")
+      left_join(dfspi() |> filter(spiyear == input$sianyo), by = c("name_long"="country"), multiple = "all")
   })
 
   v <- reactive(
@@ -274,12 +268,9 @@ server <- function(input, output, session) {
                                 opacity = 1
                       )
                   })
-  output$mapa_vac <-
-
-    renderLeaflet({
+  output$mapa_vac <- renderLeaflet({
       mapa_spi_cargado()
-
-    })
+  })
 
   ## serie vacunación ----
   output$serie_vac <- renderPlotly({
@@ -301,6 +292,10 @@ server <- function(input, output, session) {
       add_trace(data = dfplot, x = ~anyo, y=~inversion, color=~grupo, type = "scatter", mode = "lines") |>
         layout(xaxis = list(title = "Año"),
         showlegend = TRUE)
+  })
+
+  output$table_cm <- renderDataTable({
+    dfinversionescmdetail() |> pivot_wider(names_from = grupo, values_from = inversion)
   })
 }
 
