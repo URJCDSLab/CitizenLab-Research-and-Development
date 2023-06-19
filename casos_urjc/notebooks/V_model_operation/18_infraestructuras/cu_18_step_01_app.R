@@ -451,8 +451,7 @@ server <- function(input, output, session) {
       write_csv(dfhistorico(), paste0(carpetas()$carpeta_salida, "/CU_18_05_20_diario_infra.csv"))
       write_csv(dfinfraestructuras(), paste0(carpetas()$carpeta_salida, "/CU_18_05_19_01_infraestructuras.csv"))
       write_csv(dfdistritos(), paste0(carpetas()$carpeta_salida, "/CU_18_05_16_distritos_variables.csv"))
-      write_csv(dfescenario(), paste0(carpetas()$carpeta_salida, "/ESCENARIO_CLUSTER_DIARIO.csv
-.csv"))
+      write_csv(dfescenario(), paste0(carpetas()$carpeta_salida, "/ESCENARIO_CLUSTER_DIARIO.csv"))
       write_csv(dfclusterdistrito(), paste0(carpetas()$carpeta_salida, "/ESCENARIO_CLUSTER_DIST.csv"))
       write_csv(dfregresion(), paste0(carpetas()$carpeta_salida, "/ESCENARIO_REGRESION.csv"))
       ## Mover archivos de los siguientes casos
