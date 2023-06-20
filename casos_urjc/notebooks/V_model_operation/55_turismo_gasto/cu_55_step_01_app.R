@@ -356,8 +356,8 @@ dforigen <- reactive({
              delete_dsn = TRUE)
     write_csv(dfgasto(), paste0(carpetas()$carpeta_salida, "/GASTO.csv"))
     write_csv(dfgastocom(), paste0(carpetas()$carpeta_salida, "/GASTOCOM.csv"))
-    write_csv(dfdestino(), paste0(carpetas()$carpeta_salida, "/DESTINO.csv"))
-    write_csv(dforigen(), paste0(carpetas()$carpeta_salida, "/ORIGEN.csv"))
+    write_csv(dfdestino(), paste0(carpetas()$carpeta_salida, "/ESCENARIO_DESTINO.csv"))
+    write_csv(dforigen(), paste0(carpetas()$carpeta_salida, "/ESCENARIO_ORIGEN.csv"))
     ## Mover archivos de los siguientes casos
     file.copy(paste0(carpetas()$carpeta_entrada, "/VARIABLES.csv"),
               paste0(carpetas()$carpeta_salida, "/VARIABLES.csv"),
