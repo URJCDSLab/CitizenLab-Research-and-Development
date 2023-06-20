@@ -44,7 +44,7 @@ ui <- function(request) {
     navbarPage("Optimización",
     id="paneloptimizacion",
     tabPanel(
-      title="Optimizacion",
+      title="Optimización",
       fluidRow(
         column(width = 4,
               sidebarPanel(
@@ -61,7 +61,7 @@ ui <- function(request) {
                 p(paste(
                   "La optimización se realiza mediante un modelo de programación lineal. La suma de los componentes ",
                   "ha de ser inferior al total de inversión, y los componentes han de ser mayores al mínimo establecido en el paso 02.")),
-                p("El objetivo es maximizar el SPI de año escogido en el paso 02 utilizando el modelo de regresión del paso 04"),
+                p("El objetivo es maximizar el SPI de año escogido en el paso 02 utilizando el modelo de regresión del paso 04."),
                 br(),
                 verbatimTextOutput("resumen_detalle"),
                 br(),
