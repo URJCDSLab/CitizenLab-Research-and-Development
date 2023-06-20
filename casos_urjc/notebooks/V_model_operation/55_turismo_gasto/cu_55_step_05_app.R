@@ -42,7 +42,8 @@ ui <- function(request) {
                         dataTableOutput("tescenario")),
                  column(width = 6,
                         h4("Parámetros para simulación"),
-                        verbatimTextOutput("text_params")))
+                        verbatimTextOutput("text_params"),
+                        ))
       ),
       tabPanel("Gráficas (datos simulación)",
                fluidRow(
@@ -52,19 +53,26 @@ ui <- function(request) {
                )
       ),
       tabPanel("Resumen numérico (datos simulación)",
-              p("Simulación turistas"),
+              br(),
+              HTML("<b>Simulación turistas</b>"),
               br(),
               column(width = 12, dataTableOutput("res_desc_tu")),
 
-              p("Mes"),
+              br(),
+              br(),
+              HTML("<b>Mes</b>"),
               br(),
               column(width = 12, dataTableOutput("res_desc_mes")),
 
-              p("Municipio destino"),
+              br(),
+              br(),
+              HTML("<b>Municipio destino</b>"),
               br(),
               column(width = 12, dataTableOutput("res_desc_dest")),
 
-              p("País origen"),
+              br(),
+              br(),
+              HTML("<b>País origen</b>"),
               br(),
               column(width = 12, dataTableOutput("res_desc_orig"))
 
@@ -288,7 +296,7 @@ server <- function(input, output, session) {
   })
 
   output$tescenario <- DT::renderDataTable({
-    dfescenario() |>
+    dfescenario() |> rename(media_turistas=turistas) |>
       datatable(options = list(scrollX = TRUE))
   })
 
