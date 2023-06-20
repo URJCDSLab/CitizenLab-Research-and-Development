@@ -173,10 +173,13 @@ server <- function(input, output, session) {
       bind_cols(predict(mod_53_reg(), x_inv)) |>
       rename(spi = s0)
     spi_ts <- spi_madrid |> as_tsibble(index = spiyear)
+    print(spi_ts)
+    return(spi_ts)
   })
 
   df_proy <- reactive({
-    prediction <- mod_53_arima() |> forecast(h = 3)
+    print(mod_53_arima())
+    prediction <- mod_53_arima() |> fabletools::forecast(h = 3)
     prediction
   })
 
