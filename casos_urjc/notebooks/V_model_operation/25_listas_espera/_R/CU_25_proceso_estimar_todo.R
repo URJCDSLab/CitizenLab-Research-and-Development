@@ -96,6 +96,7 @@ NPER <- variables |>
   pull(valor)
 
 #simulación
+message("Simulación según último valor")
 l_sim_ultimo <- df |> 
   # slice(1:2) |>
   pull(s) |> 
@@ -122,9 +123,12 @@ l_sim_ultimo <- df |>
     recursos <- get_mon_resources(env)
     llegadas <- get_mon_arrivals(env, ongoing = TRUE)
     return(list(recursos = recursos |> mutate(id = .x),
-                llegadas = llegadas |> mutate(id = .x)))
+                llegadas = llegadas |> mutate(id = .x),
+                pred_h_personas = pars$pred_h_personas |> mutate(id = .x),
+                pred_h_tiempo = pars$pred_h_tiempo |> mutate(id = .x)))
     
-  }) 
+  }, .progress = TRUE) 
+message("Simulación según horizonte")
 l_sim_h <- df |> 
   # slice(1:2) |>
   pull(s) |> 
@@ -152,10 +156,10 @@ l_sim_h <- df |>
     llegadas <- get_mon_arrivals(env, ongoing = TRUE)
     return(list(recursos = recursos |> mutate(id = .x),
                 llegadas = llegadas |> mutate(id = .x),
-                pred_h_personas = pars$pred_h_personas,
-                pred_h_tiempo = pars$pred_h_tiempo))
+                pred_h_personas = pars$pred_h_personas |> mutate(id = .x),
+                pred_h_tiempo = pars$pred_h_tiempo |> mutate(id = .x)))
     
-  }) 
+  }, .progress = TRUE) 
 
 
 
