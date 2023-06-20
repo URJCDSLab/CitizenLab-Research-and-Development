@@ -196,9 +196,9 @@ server <- function(input, output, session) {
               options = list(scrollX = TRUE))
   })
 
-  ## . modelo gam ----
+  ## . modelo arima ----
   output$modelo_arima <- renderPrint({
-    as.matrix(coef(mod_53_arima()))
+    mod_53_arima() |> slice(1) |> report()
   })
 
   ## Tabla de proyeccion

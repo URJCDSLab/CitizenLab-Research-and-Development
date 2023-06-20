@@ -114,7 +114,7 @@ $ Rscript -e 'shiny::runApp("cu_53_step_06_app.R", port = 4000)'
 
 Navegador:
 
-http://127.0.0.1:4000/?carpeta_entrada=cu_53_step_02_output&carpeta_salida=cu_53_step_06_output&carpeta_maestros=cu_53_maestros
+http://127.0.0.1:4000/?carpeta_entrada=cu_53_step_04_output&carpeta_salida=cu_53_step_06_output&carpeta_maestros=cu_53_maestros
 
 >Se cargan los parámetros de configuración: restricciones y año a predecir
 >

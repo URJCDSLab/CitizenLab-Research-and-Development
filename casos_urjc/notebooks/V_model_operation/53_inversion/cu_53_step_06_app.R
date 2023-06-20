@@ -58,6 +58,13 @@ ui <- function(request) {
         ),
         column(width = 8,
               mainPanel(
+                p(paste(
+                  "La optimización se realiza mediante un modelo de programación lineal. La suma de los componentes ",
+                  "ha de ser inferior al total de inversión, y los componentes han de ser mayores al mínimo establecido en el paso 02.")),
+                p("El objetivo es maximizar el SPI de año escogido en el paso 02 utilizando el modelo de regresión del paso 04"),
+                br(),
+                verbatimTextOutput("resumen_detalle"),
+                br(),
                 dataTableOutput("result_table")
               )
         )
@@ -161,17 +168,19 @@ server <- function(input, output, session) {
     res$objval + b0
 
     ## Resultado optimización, inversiones necesarias:
-    data.frame(grupo = rownames(cc)[3:5],
-              porc_inv = res$solution)
+    list(data.frame(grupo = rownames(cc)[3:5],
+              porc_inv = res$solution), res$objval + b0)
   }
 
   ## observers ----
   observeEvent(input$calculate_button, {
 
     # Long-running model calculation
-    result_df <- optimize_scenarios()
-
-    output$result_table <- renderDataTable(datatable(result_df))
+    result_opt <- optimize_scenarios()
+    output$result_table <- renderDataTable(datatable(result_opt[[1]]))
+    output$resumen_detalle <- renderPrint({
+      paste("El valor óptimo de optimización es", result_opt[2])
+    })
   })
 
   observeEvent(input$error_carpetas_faltan,{
