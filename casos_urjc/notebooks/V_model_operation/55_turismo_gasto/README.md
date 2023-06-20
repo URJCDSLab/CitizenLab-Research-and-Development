@@ -2,6 +2,9 @@ Ejecución del caso CU55_Modelo agregado de estimación del gasto medio por turi
 ========================================================================
 
 
+
+=======
+
 Paso 1
 ------
 
@@ -125,8 +128,12 @@ Qué hace: Simulación de gasto de turistas
 Terminal:
 
 ````
-$ Rscript xxxxxx
+$ Rscript -e 'shiny::runApp("cu_55_step_05_app.R", port = 4000)'
 ````
+
+Navegador:
+
+http://127.0.0.1:4000/?carpeta_entrada=cu_55_step_02_output&carpeta_salida=cu_55_step_05_output&carpeta_maestros=cu_55_maestros
 
 >Se carga el escenario de turistas
 >
