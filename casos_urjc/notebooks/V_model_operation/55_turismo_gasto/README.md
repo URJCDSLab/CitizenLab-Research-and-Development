@@ -3,7 +3,7 @@ Ejecución del caso CU55_Modelo agregado de estimación del gasto medio por turi
 
 
 >NOTA EMILIO -> EQUIPO DESARROLLO URJC: Pongo explicado en formato cita los pasos que hay, lo
-que hacen y los datos y scripts que necesitan. Con esto y el caso completo 04 
+que hacen y los datos y scripts que necesitan. Con esto y el caso completo 04
 deberíais poder crear los `**_app.R` y `**_script.R` que se necesiten. Cambiad
 también los fragmentos de llamada a los scripts y enlace al navegador como corresponda
 (dejo los cu_04 sin tocar). De las variables (paso 2) hay instrucciones en el propio
@@ -35,12 +35,12 @@ Qué hace: Carga de ficheros
 Terminal:
 
 ````
-$ Rscript -e 'shiny::runApp("cu_04_step_01_app.R", port = 4000)'
+$ Rscript -e 'shiny::runApp("cu_55_step_01_app.R", port = 4000)'
 ````
 
 Navegador:
 
-http://127.0.0.1:4000/?carpeta_entrada=cu_04_step_01_input&carpeta_salida=cu_04_step_01_output&carpeta_maestros=cu_04_maestros
+http://127.0.0.1:4000/?carpeta_entrada=cu_55_step_01_input&carpeta_salida=cu_55_step_01_output&carpeta_maestros=cu_55_maestros
 
 
 Paso 2
@@ -149,8 +149,12 @@ Qué hace: Simulación de gasto de turistas
 Terminal:
 
 ````
-$ Rscript xxxxxx
+$ Rscript -e 'shiny::runApp("cu_55_step_05_app.R", port = 4000)'
 ````
+
+Navegador:
+
+http://127.0.0.1:4000/?carpeta_entrada=cu_55_step_02_output&carpeta_salida=cu_55_step_05_output&carpeta_maestros=cu_55_maestros
 
 >Se carga el escenario de turistas
 >
