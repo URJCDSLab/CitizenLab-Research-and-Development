@@ -16,6 +16,7 @@ library(DT, warn.conflicts = FALSE)
 library(leaflet)
 library(ggplot2)
 library(plotly, warn.conflicts = FALSE)
+library(spData)
 
 # SERVER
 library(sf)
@@ -23,6 +24,7 @@ library(readr)
 library(dplyr, warn.conflicts = FALSE)
 library(lubridate, warn.conflicts = FALSE)
 library(stringr)
+library(tidyr)
 
 Sys.setlocale(category = "LC_ALL", locale = "es_ES.UTF-8")
 COL1 <- rgb(33/255, 150/255, 243/255)
@@ -42,17 +44,19 @@ fkmes <- function(x){
 }
 
 
-fkmes_inv <- Vectorize(function(x){
+fkmes_inv <- Vectorize(function(x, periodo = "M"){
   if(x == 19){
     "01"
   }else if(x == 20){
-    "04"
+    ifelse(periodo == "M", "04", "02")
   }else if (x == 21){
-    "07"
+    ifelse(periodo == "M", "07", "03")
   }else{
-    "10"
+    ifelse(periodo == "M", "10", "04")
   }
 })
+
+
 
 
 ui <- function(request) {
@@ -67,7 +71,9 @@ ui <- function(request) {
       sidebarPanel(width = 2,
                    uiOutput("uipicriterio"),
                    uiOutput("uipimunicipio"),
-                   uiOutput("uipipais")
+                   uiOutput("uipipais"),
+                   uiOutput("uimes"),
+                   uiOutput("uitrimestre")
                    
       ) ,
       
@@ -83,8 +89,8 @@ ui <- function(request) {
                                     #              label = "Cargar mapa")
                                     # ),
                                     fluidRow(
-                                      column(width = 6,
-                                             uiOutput("uimes")),
+                                      column(width = 6
+                                             ),
                                       column(width = 6,
                                              infoBoxOutput("ibgastocom", width = 8)
                                       )
@@ -101,12 +107,10 @@ ui <- function(request) {
                                     plotlyOutput("serie_gasto") 
                            ),
                            tabPanel("Ranking",
-                                    plotlyOutput("ranking_gasto") |> 
-                                      withSpinner(2, color.background = COL1)
+                                    plotlyOutput("ranking_gasto", height = "600px") 
                            ),
                            tabPanel("Datos",
-                                    DT::dataTableOutput("tabla_gasto") |> 
-                                      withSpinner(7)
+                                    DT::dataTableOutput("tabla_gasto") 
                            )
                          )
                          # ),
@@ -229,6 +233,18 @@ server <- function(input, output, session) {
              show_col_types = FALSE)
   })
   
+  dfpaises <- reactive({
+    read_csv(paste0(carpetas()$carpeta_maestros, "/corresppaisos.csv"),
+             skip = 3,
+             show_col_types = FALSE) |> 
+      mutate(INE = as.numeric(INE)) |> 
+      drop_na(INE) |> 
+      select(INE, ISO2 = `ISO (alpha2)`)
+  })
+  
+   
+  
+  
   # dfpredictores <- reactive({
   #   data.frame(predictor = colnames(dfhistorico()),
   #              fichero = "Histórico") |> 
@@ -293,7 +309,6 @@ server <- function(input, output, session) {
   
   dfseriespaises <- reactive({
     req(input$sipaisesserie)
-    print(as.numeric(input$sipaisesserie))
     dfserie <- dfgastocom() |> 
       filter(cod_pais %in% as.numeric(input$sipaisesserie)) |> 
       mutate(cod_pais = factor(cod_pais)) |>
@@ -415,8 +430,20 @@ server <- function(input, output, session) {
   
   output$uimes <- renderUI({
     selectizeInput("simes",
-                   label = "Mes",
+                   label = "Mes (mapa y ranking)",
                    choices = sort(unique(dfgasto()$mes)),
+                   options = list(
+                     `live-search` = TRUE)
+    )
+  })
+  output$uitrimestre <- renderUI({
+    trimestres <- dfgastocom() |> 
+      mutate(trimestre = fkmes_inv(FK_Periodo, periodo = "T"),
+             periodo = paste(Anyo, trimestre, sep = "-")) |> 
+      pull(periodo) |> unique() |> sort()
+    selectizeInput("sitrimestre",
+                   label = "Trimestre (mapa y ranking)",
+                   choices = trimestres,
                    options = list(
                      `live-search` = TRUE)
     )
@@ -612,34 +639,31 @@ server <- function(input, output, session) {
   })
   
   mapa_paises <- reactive({
-    # req(input$simes)
-    # if(nrow(dfmapamun()) > 1){
-    #   pal <- colorQuantile(palette = "Oranges", 
-    #                        domain = dfmapamun()$turistas,
-    #                        n = 4)
-    #   
-    # }else{
-    #   pal <- colorFactor(palette = "Oranges", 
-    #                      domain = dfmapamun()$turistas)
-    # }
-    # dfmapamun() |> 
-    #   leaflet() |> 
-    #   addTiles() |> 
-    #   addPolygons(label = ~name,
-    #               popup = ~paste0("Turistas: ", turistas, "<br/>",
-    #                               "Gasto total: ", turistas * gasto),
-    #               weight = 1, 
-    #               color = "#444444",
-    #               smoothFactor = 0.5,
-    #               fillOpacity = 0.8,
-    #               fillColor = ~pal(turistas)) |> 
-    #   addLegend("bottomright", 
-    #             pal = pal, 
-    #             values = ~turistas,
-    #             title = "Número de turistas",
-    #             labFormat = labelFormat(big.mark = " "),
-    #             opacity = 1
-    #   )
+    req(input$sitrimestre)
+    dmap <- world |> select(iso_a2, name_long) |> 
+      right_join(
+        dfgastocom() |> 
+          mutate(trimestre = fkmes_inv(FK_Periodo, periodo = "T"),
+                 periodo = paste(Anyo, trimestre, sep = "-")) |> 
+          filter(periodo == input$sitrimestre) |> 
+          left_join(dfpaises(),
+                    by = c("cod_pais" = "INE")),
+        by = c("iso_a2" = "ISO2")) 
+    
+    pal <- colorQuantile(palette = "Oranges", 
+                         domain = dmap$Valor,
+                         n = 4)
+    dmap |> 
+      leaflet() |> 
+      addTiles() |> 
+      addPolygons(label = ~name_long,
+                  popup = ~paste0("Gasto medio: ", Valor),
+                  weight = 1,
+                  color = "#444444",
+                  fillOpacity = 0.8,
+                  fillColor =  ~pal(Valor))
+    
+    
   })
   
   output$mapa_gasto <- renderLeaflet({
@@ -686,6 +710,73 @@ server <- function(input, output, session) {
     ggplotly(p)
   })
   
+  output$ranking_gasto <- renderPlotly({
+    
+    if(input$picriterio == "Origen"){
+      req(input$simes)
+      dfrankingdestino <- 
+        dfgasto ()|> 
+        mutate(gasto_total = turistas*gasto) |> 
+        filter(mes == input$simes,
+               mun_dest == input$simunicipio) |> 
+        arrange(desc(gasto_total)) 
+      req(nrow(dfrankingdestino)> 0 )
+      p <- dfrankingdestino |> 
+        mutate(pais_orig = rev(forcats::fct_inorder(pais_orig))) |>  
+        ggplot(aes(y = pais_orig, x = gasto_total)) +
+        geom_col(fill = "orange") +
+        labs(x = "Gasto total",
+             y = "") +
+        theme_bw()
+    } else{
+      req(input$sitrimestre)
+      paises <- dfgasto() |> 
+        group_by(pais_orig_cod, pais_orig) |> 
+        summarise(.groups = "drop") |> 
+        mutate(pais_orig_cod = as.numeric(pais_orig_cod))
+      dfrankingcom <- 
+        dfgastocom() |> 
+        left_join(paises,
+                  by = c("cod_pais" = "pais_orig_cod")) |> 
+        mutate(trimestre = fkmes_inv(FK_Periodo, periodo = "T"),
+               periodo = paste(Anyo, trimestre, sep = "-")) |> 
+        filter(periodo == input$sitrimestre) |> 
+        arrange(desc(Valor))  |> 
+        tidyr::drop_na()
+      req(nrow(dfrankingcom)> 0 )
+      p <- dfrankingcom |> 
+        mutate(pais_orig = rev(forcats::fct_inorder(pais_orig))) |>  
+        ggplot(aes(y = pais_orig, x = Valor)) +
+        geom_col(fill = "orange") +
+        labs(x = "Gasto medio por turista",
+             y = "") +
+        theme_bw()
+    }
+    
+    ggplotly(p)
+    
+  })
+  
+  output$tabla_gasto <- DT::renderDataTable({
+    if(input$picriterio == "Origen"){
+      tdf <- dfgasto()  
+    }else{
+      paises <- dfgasto() |> 
+        group_by(pais_orig_cod, pais_orig) |> 
+        summarise(.groups = "drop") |> 
+        mutate(pais_orig_cod = as.numeric(pais_orig_cod))
+      tdf <- dfgastocom() |> 
+        left_join(paises,
+                  by = c("cod_pais" = "pais_orig_cod")) |> 
+        mutate(trimestre = fkmes_inv(FK_Periodo, periodo = "T"),
+               periodo = paste(Anyo, trimestre, sep = "-"))
+    }
+    
+    tdf |> 
+      datatable(options = list(scrollX = TRUE)) 
+      
+    
+  })
   
   
   # output$msgmapapred <- renderText(r$mapapredmsg)
