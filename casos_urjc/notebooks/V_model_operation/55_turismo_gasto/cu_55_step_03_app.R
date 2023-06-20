@@ -113,30 +113,7 @@ ui <- function(request) {
                                     DT::dataTableOutput("tabla_gasto") 
                            )
                          )
-                         # ),
-                         # tabPanel(id = "panelhistorico",
-                         #          title = "Variables predictoras",
-                         #          tabsetPanel(
-                         #            id = "panelpredictoras",
-                         #            tabPanel("Mapa",
-                         #                     p(br(),
-                         #                       actionBttn("btncargamapapred",
-                         #                                  label = "Cargar mapa"),
-                         #                       textOutput("msgmapapred")
-                         #                     ),
-                         #                     leafletOutput("mapa_pred") |> 
-                         #                       withSpinner(8)
-                         #            ),
-                         #            tabPanel("Serie",
-                         #                     textOutput("msgseriepred"),
-                         #                     plotlyOutput("serie_pred") |> 
-                         #                       withSpinner(2, color.background = COL1)
-                         #            ),
-                         #            tabPanel("Datos",
-                         #                     DT::dataTableOutput("tabla_pred") |> 
-                         #                       withSpinner(7)
-                         #            )
-                         #          ))
+
                 )
       )
     )
@@ -151,12 +128,7 @@ server <- function(input, output, session) {
   
   ## . ReactiveValues ----
   
-  # r <- reactiveValues(mapapredmsg = "",
-  #                     seriepredmsg = "",
-  #                     nzona = "")
-  # 
-  # 
-  
+
   ## . carpetas ----
   carpetas <- reactive({
     
@@ -245,21 +217,6 @@ server <- function(input, output, session) {
    
   
   
-  # dfpredictores <- reactive({
-  #   data.frame(predictor = colnames(dfhistorico()),
-  #              fichero = "Histórico") |> 
-  #     bind_rows(data.frame(predictor = colnames(dfindicadores()),
-  #                          fichero = "Indicadores")) |> 
-  #     bind_rows(data.frame(predictor = colnames(dfescucha()),
-  #                          fichero = "Escucha")) |> 
-  #     left_join(dfindicadoresmeta(),
-  #               by = c("predictor" = "Tabla")) |> 
-  #     mutate(Indicador = if_else(is.na(Indicador), 
-  #                                predictor, 
-  #                                Indicador)) |> 
-  #     filter(!(predictor %in% c("GEOCODIGO", "DESBDT", "ano", "semana", "n_vacunas")))
-  # })
-  
   sfmunicipios <- reactive({
     read_sf(paste0(carpetas()$carpeta_entrada, "/ZONAS.json"))
   })
@@ -315,78 +272,7 @@ server <- function(input, output, session) {
       mutate(fecha = paste(Anyo, fkmes_inv(FK_Periodo), "01", sep = "-"))
   })
   
-  # dfmapa <- reactive({
-  #   sfzonas() |> 
-  #     left_join(dfhistorico(), by = c("GEOCODIGO", "DESBDT"), 
-  #               multiple = "all") |> 
-  #     filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN)) |> 
-  #     group_by(GEOCODIGO, DESBDT) |> 
-  #     summarise(n_vacunas = sum(n_vacunas), .groups = "drop")
-  #   
-  # })
-  # 
-  # dfmapapred <- reactive({
-  #   r$mapapredmsg <- ""
-  #   if (input$sipredictor %in% colnames(dfhistorico())){
-  #     sfzonas() |> 
-  #       left_join(dfhistorico(), by = c("GEOCODIGO", "DESBDT"), 
-  #                 multiple = "all") |> 
-  #       filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN)) |> 
-  #       group_by(GEOCODIGO, DESBDT) |> 
-  #       summarise(across(n_vacunas:n_citas, ~sum(.x, na.rm = TRUE)), 
-  #                 across(tmed:so2, ~mean(.x, na.rm = TRUE)), 
-  #                 .groups = "drop")
-  #     
-  #   } else if(input$sipredictor %in% colnames(dfindicadores())){
-  #     
-  #     sfzonas() |> 
-  #       left_join(dfindicadores(), by = c("GEOCODIGO", "DESBDT"), 
-  #                 multiple = "all")
-  #   } else if (input$sipredictor %in% colnames(dfescucha())){
-  #     r$mapapredmsg <- "Los datos de escucha no están geolocalizados. Seleccione otro predictor."
-  #     NA
-  #   } else if (input$sipredictor == ""){
-  #     r$mapapredmsg <- "Seleccione un predictor en el menú lateral para poder representarlo en el mapa"
-  #     NA
-  #   }
-  # })
-  # 
-  # dfseriepred <- reactive({
-  #   r$seriepredmsg <- ""
-  #   PREDICTOR <- input$sipredictor
-  #   if (PREDICTOR %in% colnames(dfhistorico())){
-  #     if(input$sizona == ""){
-  #       sdata <- dfhistorico() |> 
-  #         select(-n_vacunas) |> 
-  #         filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN)) |> 
-  #         group_by(ano, semana) |> 
-  #         summarise("{PREDICTOR}" := mean(eval(parse(text = input$sipredictor)), na.rm = TRUE), .groups = "drop")
-  #       r$nzona <- ""
-  #     } else{
-  #       r$nzona <- sfzonas() |> 
-  #         filter(GEOCODIGO == input$sizona) |> 
-  #         pull(DESBDT)
-  #       sdata <- dfhistorico() |> 
-  #         filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN),
-  #                GEOCODIGO == input$sizona)
-  #     }
-  #     sdata |> 
-  #       mutate(ano_semana = paste0(ano, "-", semana),
-  #              fecha = as.Date(parse_date_time(paste(ano, semana, 1, sep="/"),'Y/W/w')))
-  #   } else if (PREDICTOR %in% colnames(dfescucha())){
-  #     dfescucha() |> 
-  #       filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN)) |> 
-  #       mutate(ano_semana = paste0(ano, "-", semana),
-  #              fecha = as.Date(parse_date_time(paste(ano, semana, 1, sep="/"),'Y/W/w')))
-  #   } else if (PREDICTOR %in% colnames(dfindicadores())){
-  #     r$seriepredmsg <- "Los datos de indicadores no están disponibles por semana"
-  #     NA
-  #   } else if (input$sipredictor == ""){
-  #     r$seriepredmsg <- "Seleccione un predictor en el menú lateral para poder representarlo en el mapa"
-  #     NA
-  #   }
-  # })
-  # 
+ 
   v <- reactive(
     list(
       NSIM = dfvariables() |>
@@ -462,139 +348,7 @@ server <- function(input, output, session) {
   
   
   
-  # output$campana <- renderUI({
-  #   div(h4("Campaña"),
-  #       p(v()$ANO, "/", v()$ANO + 1),
-  #       p("Desde semana ", v()$SEMANA_INICIO, " a la ", v()$SEMANA_FIN)
-  #   )
-  # }
-  # )
-  # 
-  # 
-  # output$uipipredictor <- renderUI({
-  #   lista_pred <- list(`Seleccione uno (opcional)` = "", 
-  #                      `Histórico` = setNames(dfpredictores() |> 
-  #                                               filter(fichero == "Histórico") |> 
-  #                                               pull(predictor),
-  #                                             dfpredictores() |> 
-  #                                               filter(fichero == "Histórico") |> 
-  #                                               pull(Indicador)),
-  #                      Indicadores = setNames(dfpredictores() |> 
-  #                                               filter(fichero == "Indicadores") |> 
-  #                                               pull(predictor),
-  #                                             dfpredictores() |> 
-  #                                               filter(fichero == "Indicadores") |> 
-  #                                               pull(Indicador)),
-  #                      Escucha = setNames(dfpredictores() |> 
-  #                                           filter(fichero == "Escucha") |> 
-  #                                           pull(predictor),
-  #                                         dfpredictores() |> 
-  #                                           filter(fichero == "Escucha") |> 
-  #                                           pull(Indicador))
-  #   )
-  #   selectizeInput("sipredictor",
-  #                  label = "Predictor",
-  #                  choices = lista_pred,
-  #                  selected = dfvariables() |> 
-  #                    filter(variable == "PREDICTOR") |> 
-  #                    pull(valor),
-  #                  options = list(
-  #                    `live-search` = TRUE
-  #                  )
-  #   )
-  # })
-  # 
-  # ## mapa vacunación ----
-  # mapa_vac_cargado <- 
-  #   eventReactive(input$btncargamapa, 
-  #                 {
-  #                   pal <- colorNumeric(palette = "Blues", 
-  #                                       domain = dfmapa()$n_vacunas)
-  #                   dfmapa() |> 
-  #                     leaflet() |>
-  #                     addTiles() |> 
-  #                     addPolygons(color = "#444444", 
-  #                                 weight = 1, 
-  #                                 smoothFactor = 0.5,
-  #                                 fillOpacity = 1,
-  #                                 fillColor = ~pal(n_vacunas),
-  #                                 highlightOptions = highlightOptions(color = "white", weight = 2,
-  #                                                                     bringToFront = TRUE),
-  #                                 popup = ~paste0(DESBDT, " (", GEOCODIGO, ")"),
-  #                                 label = ~paste0(n_vacunas, " vacunas")) |> 
-  #                     addLegend("bottomright", 
-  #                               pal = pal, 
-  #                               values = ~n_vacunas,
-  #                               title = "Número de vacunas",
-  #                               labFormat = labelFormat(big.mark = " "),
-  #                               opacity = 1
-  #                     )
-  #                 })
-  # output$mapa_vac <- 
-  #   
-  #   renderLeaflet({
-  #     mapa_vac_cargado()
-  #     
-  #   })
-  # 
-  # ## serie vacunación ----
-  # output$serie_vac <- renderPlotly({
-  #   if(input$sizona == ""){
-  #     sdata <- dfhistorico() |> 
-  #       filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN)) |> 
-  #       group_by(ano, semana) |> 
-  #       summarise(n_vacunas = sum(n_vacunas, na.rm = TRUE), .groups = "drop")
-  #     NZONA <- NA
-  #   } else{
-  #     sdata <- dfhistorico() |> 
-  #       filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN),
-  #              GEOCODIGO == input$sizona)
-  #     NZONA <- sfzonas() |> 
-  #       filter(GEOCODIGO == input$sizona) |> 
-  #       pull(DESBDT)
-  #   }
-  #   sdata <- sdata |> 
-  #     mutate(ano_semana = paste0(ano, "-", semana),
-  #            fecha = as.Date(parse_date_time(paste(ano, semana, 1, sep="/"),'Y/W/w')))
-  #   
-  #   p <- sdata |> 
-  #     ggplot() +
-  #     aes(x = fecha,
-  #         y = n_vacunas) +
-  #     geom_line(col = COL1) +
-  #     labs(x = "Semana",
-  #          y = "Total vacunas") +
-  #     scale_x_date(date_breaks = "1 month",
-  #                  date_minor_breaks = "1 week",
-  #                  labels = function(x) month(x, label = TRUE)) +
-  #     theme_bw() +
-  #     theme(axis.text.x = element_text(angle = 45, vjust = 0.5),
-  #           plot.margin = unit(c(1.2, 1, 1, 1), "cm"))
-  #   
-  #   ggplotly(p) |> 
-  #     layout(title = list(text = paste0("Histórico campaña ", v()$ANO, "/", v()$ANO + 1,
-  #                                       "<br><sup>", 
-  #                                       if_else(input$sizona == "", 
-  #                                               "Total zonas", 
-  #                                               paste0("Zona ", 
-  #                                                      input$sizona,
-  #                                                      " (", NZONA, ")"))),
-  #                         x = 0,
-  #                         pad = list(b = 90, l = 130, r = 50 )))
-  # })
-  # 
-  # ## Tabla vacunación ----
-  # output$tabla_vac <- DT::renderDataTable({
-  #   dfhistorico() |> 
-  #     filter((ano == v()$ANO & semana >= v()$SEMANA_INICIO) | (ano == v()$ANO + 1 & semana <= v()$SEMANA_FIN)) |> 
-  #     group_by(GEOCODIGO, DESBDT) |> 
-  #     summarise(n_vacunas = sum(n_vacunas, na.rm = TRUE), .groups = "drop") |> 
-  #     datatable(rownames = FALSE, colnames = c("Código zona", "Nombre zona", "Total vacunas campaña")) |> 
-  #     formatRound(3, dec.mark = ",", mark = ".", digits = 0)
-  # })
-  # 
-  # ## Pestaña predictores ----
-  ## mapa gasto ----
+
   
   output$ibgastocom <- renderInfoBox({
     # print(gastocom())
@@ -779,102 +533,7 @@ server <- function(input, output, session) {
   })
   
   
-  # output$msgmapapred <- renderText(r$mapapredmsg)
-  # output$msgseriepred <- renderText(r$seriepredmsg)
-  # mapa_pred_cargado <- 
-  #   eventReactive(input$btncargamapapred, 
-  #                 {
-  #                   if(!is.data.frame(dfmapapred())){
-  #                     NULL
-  #                   } else{
-  #                     pal <- colorNumeric(palette = "Greens", 
-  #                                         domain = dfmapapred() |> 
-  #                                           pull(input$sipredictor))
-  #                     dfmapapred() |> 
-  #                       leaflet() |>
-  #                       addTiles() |> 
-  #                       addPolygons(color = "#444444", 
-  #                                   weight = 1, 
-  #                                   smoothFactor = 0.5,
-  #                                   fillOpacity = 1,
-  #                                   fillColor = ~pal(eval(parse(text = input$sipredictor))),
-  #                                   highlightOptions = highlightOptions(color = "white", weight = 2,
-  #                                                                       bringToFront = TRUE),
-  #                                   popup = ~paste0(DESBDT, " (", GEOCODIGO, ")"),
-  #                                   label = ~paste0(round(eval(parse(text = input$sipredictor)), 2))) |> 
-  #                       addLegend("bottomright", 
-  #                                 pal = pal, 
-  #                                 values = ~eval(parse(text = input$sipredictor)),
-  #                                 title = paste0("Predictor: ", input$sipredictor),
-  #                                 labFormat = labelFormat(big.mark = " "),
-  #                                 opacity = 1
-  #                       )
-  #                   }
-  #                 })
-  # output$mapa_pred <- 
-  #   renderLeaflet({
-  #     mapa_pred_cargado()
-  #     
-  #   })
-  # 
-  # ## serie predictores ----
-  # output$serie_pred <- renderPlotly({
-  #   if(!is.data.frame(dfseriepred())){
-  #     NULL
-  #   } else{
-  #     p <- dfseriepred() |> 
-  #       ggplot() +
-  #       aes(x = fecha,
-  #           y = eval(parse(text = input$sipredictor))) +
-  #       geom_line(col = COL1) +
-  #       labs(x = "Semana",
-  #            y = paste("Media de ", input$sipredictor)) +
-  #       scale_x_date(date_breaks = "1 month",
-  #                    date_minor_breaks = "1 week",
-  #                    labels = function(x) month(x, label = TRUE)) +
-  #       theme_bw() +
-  #       theme(axis.text.x = element_text(angle = 45, vjust = 0.5),
-  #             plot.margin = unit(c(1.2, 1, 1, 1), "cm"))
-  #     
-  #     ggplotly(p) |> 
-  #       layout(title = list(text = paste0("Histórico campaña ", v()$ANO, "/", v()$ANO + 1,
-  #                                         "<br><sup>", 
-  #                                         if_else(input$sizona == "", 
-  #                                                 "Media zonas", 
-  #                                                 paste0("Zona ", 
-  #                                                        input$sizona,
-  #                                                        " (", r$nzona, ")"))),
-  #                           x = 0,
-  #                           pad = list(b = 90, l = 130, r = 50 )))
-  #   }
-  # })
-  # 
-  # ## Tabla predictores ----
-  # output$tabla_pred <- DT::renderDataTable({
-  #   if (input$sipredictor %in% colnames(dfhistorico())){
-  #     dfhistorico() |> 
-  #       select(GEOCODIGO, DESBDT, ano, semana, matches(input$sipredictor)) |>
-  #       datatable(rownames = FALSE, 
-  #                 colnames = c("Zona", "Nombre zona", "Año", "Semana", 
-  #                              input$sipredictor)) |> 
-  #       formatRound(5, dec.mark = ",", mark = ".", digits = 2) |> 
-  #       formatRound(3, digits = 1)
-  #     
-  #   } else if (input$sipredictor %in% colnames(dfescucha())){
-  #     dfescucha() |> 
-  #       select(ano, semana, matches(input$sipredictor)) |> 
-  #       datatable(rownames = FALSE, 
-  #                 colnames = c("Año", "Semana", 
-  #                              input$sipredictor))
-  #   } else if(input$sipredictor %in% colnames(dfindicadores())){
-  #     dfindicadores() |> 
-  #       select(GEOCODIGO, DESBDT, matches(input$sipredictor)) |> 
-  #       datatable(rownames = FALSE, 
-  #                 colnames = c("Zona", "Nombre zona", 
-  #                              input$sipredictor)) |> 
-  #       formatRound(3, dec.mark = ",", mark = ".", digits = 2) 
-  #   }
-  # })
+
 }
 
 shinyApp(ui, server)
